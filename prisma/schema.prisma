@@ -1,0 +1,101 @@
+// Instagram Weekly Performance Dashboard - data model
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Single-row app configuration + Instagram connection state.
+model Setting {
+  id                 Int       @id @default(1)
+  igUserId           String?
+  igUsername         String?
+  accessToken        String?
+  tokenExpiresAt     DateTime?
+  captionTemplate    String    @default("")
+  captionExamples    String    @default("")
+  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime  @default(now())
+}
+
+/// One row per day: account-level snapshot used to compute deltas + ranges.
+model AccountSnapshot {
+  id             Int      @id @default(autoincrement())
+  date           DateTime @db.Date
+  followersCount Int      @default(0)
+  reach          Int      @default(0)
+  views          Int      @default(0)
+  profileViews   Int      @default(0)
+  follows        Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([date])
+  @@index([date])
+}
+
+/// A piece of published content (reel / feed post / story).
+model Media {
+  id           Int              @id @default(autoincrement())
+  igMediaId    String           @unique
+  caption      String?
+  mediaType    String?
+  productType  String?
+  permalink    String?
+  thumbnailUrl String?
+  mediaUrl     String?
+  timestamp    DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  snapshots    MediaSnapshot[]
+
+  @@index([timestamp])
+}
+
+/// Daily metric snapshot for a piece of media (cumulative lifetime values).
+model MediaSnapshot {
+  id                Int      @id @default(autoincrement())
+  media             Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId           Int
+  date              DateTime @db.Date
+  likes             Int      @default(0)
+  comments          Int      @default(0)
+  shares            Int      @default(0)
+  saved             Int      @default(0)
+  reach             Int      @default(0)
+  views             Int      @default(0)
+  totalInteractions Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  @@unique([mediaId, date])
+  @@index([date])
+}
+
+/// A weekly batch of 7 AI-generated content ideas.
+model IdeaBatch {
+  id             Int      @id @default(autoincrement())
+  weekOf         DateTime @db.Date
+  ideas          Json
+  basedOnMediaIds Json?
+  model          String?
+  createdAt      DateTime @default(now())
+
+  @@unique([weekOf])
+  @@index([weekOf])
+}
+
+/// A single caption generation run (topic -> structured output).
+model CaptionRun {
+  id            Int      @id @default(autoincrement())
+  topic         String
+  output        String
+  templateUsed  String?
+  model         String?
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
