@@ -7,6 +7,7 @@ import {
   getMediaInsights,
 } from "@/lib/instagram";
 import { todayUtcDate } from "@/lib/dates";
+import { cacheMissingThumbnails } from "@/lib/thumbnails";
 
 export interface SyncResult {
   date: string;
@@ -16,6 +17,7 @@ export interface SyncResult {
   profileViews: number;
   mediaSynced: number;
   mediaInsightsSynced: number;
+  thumbnailsCached: number;
   errors: string[];
 }
 
@@ -93,7 +95,13 @@ export async function runDailySync(): Promise<SyncResult> {
     mediaSynced++;
   }
 
-  // 3. Media insights (bounded to recent posts to limit API calls)
+  // 3. Cache thumbnail bytes locally while the signed CDN URLs are fresh
+  const thumbs = await cacheMissingThumbnails();
+  if (thumbs.failed > 0) {
+    errors.push(`${thumbs.failed} thumbnail download(s) failed`);
+  }
+
+  // 4. Media insights (bounded to recent posts to limit API calls)
   const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
   const recent = dbMedia
     .filter((m) => !m.timestamp || m.timestamp.getTime() >= cutoff)
@@ -155,6 +163,7 @@ export async function runDailySync(): Promise<SyncResult> {
     profileViews: insights.profileViews,
     mediaSynced,
     mediaInsightsSynced,
+    thumbnailsCached: thumbs.cached,
     errors,
   };
 }

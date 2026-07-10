@@ -2,7 +2,7 @@ import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: ReturnType<typeof createClient> | undefined;
 };
 
 function buildPgConfig() {
@@ -30,6 +30,8 @@ function createClient() {
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    // Cached thumbnail bytes are heavy; only the thumbnail route selects them explicitly.
+    omit: { media: { thumbData: true } },
   });
 }
 

@@ -14,19 +14,74 @@ import {
   SectionTitle,
   StatPanel,
   StatCell,
-  WeekStrip,
   buttonClasses,
 } from "@/components/ui";
-import { AreaTrend } from "@/components/charts";
-import { chartColors } from "@/lib/chart-tokens";
+import { MultiLineTrend } from "@/components/charts";
+import { chartColors, chartDashes } from "@/lib/chart-tokens";
 import { ContentCard } from "@/components/content-card";
 import { SyncButton } from "@/components/actions";
-import { formatNumber, formatFullNumber } from "@/lib/utils";
+import { RangePicker } from "@/components/range-picker";
+import { formatNumber, formatFullNumber, formatDelta } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+function Legend({
+  items,
+}: {
+  items: { name: string; color: string; dash?: string }[];
+}) {
+  return (
+    <span className="flex items-center gap-3">
+      {items.map((s) => (
+        <span
+          key={s.name}
+          className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-muted"
+        >
+          <svg width="14" height="8" aria-hidden>
+            <line
+              x1="0"
+              y1="4"
+              x2="14"
+              y2="4"
+              stroke={s.color}
+              strokeWidth="2"
+              strokeDasharray={s.dash}
+            />
+          </svg>
+          {s.name}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function rangeTitle(dayCount: number, endIsToday: boolean): string {
+  if (endIsToday && [7, 14, 30, 90].includes(dayCount)) {
+    return `Last ${dayCount} days`;
+  }
+  return "Custom range";
+}
+
+function inclusiveDayCount(start: string, end: string): number {
+  return (
+    Math.round(
+      (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) /
+        86_400_000,
+    ) + 1
+  );
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ start?: string; end?: string }>;
+}) {
   const connected = await isConnected();
+  const params = await searchParams;
+  const today = todayInAppTz();
+  const end = params.end && params.end <= today ? params.end : today;
+  const start =
+    params.start && params.start <= end ? params.start : addDaysKey(end, -6);
 
   if (!connected) {
     return (
@@ -51,137 +106,140 @@ export default async function DashboardPage() {
     );
   }
 
-  const today = todayInAppTz();
-  const thisStart = addDaysKey(today, -6);
-  const prevEnd = addDaysKey(today, -7);
-  const prevStart = addDaysKey(today, -13);
+  const dayCount = inclusiveDayCount(start, end);
+  const prevEnd = addDaysKey(start, -1);
+  const prevStart = addDaysKey(prevEnd, -(dayCount - 1));
 
-  const [thisWeek, prevWeek, trend, topContent] = await Promise.all([
-    summarizeRange(thisStart, today),
+  const [current, previous, trend, topContent] = await Promise.all([
+    summarizeRange(start, end),
     summarizeRange(prevStart, prevEnd),
-    getTrend(addDaysKey(today, -29), today),
-    getTopContent(thisStart, today, 8),
+    getTrend(start, end),
+    getTopContent(start, end, 12),
   ]);
 
-  const followersTrend: { date: string; followers: number }[] = trend.map(
-    (t) => ({ date: t.date, followers: t.followers }),
-  );
-  const viewsTrend = trend.map((t) => ({ date: t.date, views: t.views }));
-  const syncedDays = trend.filter((t) => t.date >= thisStart).length;
+  const trendSeries = [
+    { key: "views", name: "Views", color: chartColors[1], dash: chartDashes[1] },
+    { key: "reach", name: "Reach", color: chartColors[2], dash: chartDashes[2] },
+    {
+      key: "profileViews",
+      name: "Profile views",
+      color: chartColors[3],
+      dash: chartDashes[3],
+    },
+  ];
+  const followerSeries = [
+    { key: "followers", name: "Followers", color: chartColors[1] },
+  ];
 
   return (
     <>
       <PageHeader
-        title="This week"
-        subtitle={`${formatDateLabel(thisStart)} → ${formatDateLabel(today)} · compared to previous 7 days`}
-        action={<SyncButton />}
+        title={rangeTitle(dayCount, end === today)}
+        subtitle={`${formatDateLabel(start)} → ${formatDateLabel(end)} · compared to previous ${dayCount} days`}
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <RangePicker start={start} end={end} today={today} />
+            <SyncButton />
+          </div>
+        }
       />
 
-      {!thisWeek.hasData ? (
+      {!current.hasData ? (
         <EmptyState
-          title="No data yet"
-          description="Your account is connected but we haven't collected metrics yet. Run a sync now, or wait for the daily 12pm IST update. Historical trends build up over time."
+          title="No data in this range"
+          description="We only have data from the days the sync has run. Pick a more recent range, or run a sync now."
           action={<SyncButton />}
         />
       ) : (
         <>
-          <StatPanel className="grid-cols-2 lg:grid-cols-4">
+          <StatPanel className="grid-cols-1 sm:grid-cols-2">
             <StatCell
               hero
-              label="Followers gained"
-              value={
-                (thisWeek.followersGained >= 0 ? "+" : "") +
-                formatNumber(thisWeek.followersGained)
-              }
+              label="Followers"
+              value={formatFullNumber(current.followersEnd)}
               delta={pctChange(
-                thisWeek.followersGained,
-                prevWeek.followersGained,
+                current.followersGained,
+                previous.followersGained,
               )}
-              hint={`${formatFullNumber(thisWeek.followersEnd)} total followers`}
-              className="col-span-2 row-span-2"
-            >
-              <div className="mt-auto pt-5">
-                <WeekStrip filled={syncedDays} />
-                <p className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-2">
-                  {syncedDays}/7 days synced
-                </p>
-              </div>
-            </StatCell>
+              hint={`${formatDelta(current.followersGained)} gained in range`}
+            />
             <StatCell
+              hero
               label="Views"
-              value={formatNumber(thisWeek.views)}
-              delta={pctChange(thisWeek.views, prevWeek.views)}
-            />
-            <StatCell
-              label="Reach"
-              value={formatNumber(thisWeek.reach)}
-              delta={pctChange(thisWeek.reach, prevWeek.reach)}
-            />
-            <StatCell
-              label="Likes"
-              value={formatNumber(thisWeek.likes)}
-              delta={pctChange(thisWeek.likes, prevWeek.likes)}
-              hint="on posts published this week"
-            />
-            <StatCell
-              label="Shares"
-              value={formatNumber(thisWeek.shares)}
-              delta={pctChange(thisWeek.shares, prevWeek.shares)}
-            />
-            <StatCell
-              label="Comments"
-              value={formatNumber(thisWeek.comments)}
-              delta={pctChange(thisWeek.comments, prevWeek.comments)}
-            />
-            <StatCell
-              label="Saves"
-              value={formatNumber(thisWeek.saved)}
-              delta={pctChange(thisWeek.saved, prevWeek.saved)}
-            />
-            <StatCell
-              label="Profile views"
-              value={formatNumber(thisWeek.profileViews)}
-              delta={pctChange(thisWeek.profileViews, prevWeek.profileViews)}
-            />
-            <StatCell
-              label="Posts published"
-              value={formatNumber(thisWeek.postsPublished)}
-              delta={pctChange(
-                thisWeek.postsPublished,
-                prevWeek.postsPublished,
-              )}
+              value={formatNumber(current.views)}
+              delta={pctChange(current.views, previous.views)}
+              hint={`vs previous ${dayCount} days`}
             />
           </StatPanel>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <Card>
-              <SectionTitle meta="30 days">Followers</SectionTitle>
-              <AreaTrend
-                data={followersTrend}
-                dataKey="followers"
-                color={chartColors[1]}
-              />
-            </Card>
-            <Card>
-              <SectionTitle meta="30 days">Daily views</SectionTitle>
-              <AreaTrend
-                data={viewsTrend}
-                dataKey="views"
-                color={chartColors[2]}
-              />
-            </Card>
-          </div>
+          <SectionTitle className="mt-8 mb-3">Engagement</SectionTitle>
+          <StatPanel className="grid-cols-2 lg:grid-cols-4">
+            <StatCell
+              label="Reach"
+              value={formatNumber(current.reach)}
+              delta={pctChange(current.reach, previous.reach)}
+            />
+            <StatCell
+              label="Profile views"
+              value={formatNumber(current.profileViews)}
+              delta={pctChange(current.profileViews, previous.profileViews)}
+            />
+            <StatCell
+              label="Likes"
+              value={formatNumber(current.likes)}
+              delta={pctChange(current.likes, previous.likes)}
+              hint="on posts published in range"
+            />
+            <StatCell
+              label="Comments"
+              value={formatNumber(current.comments)}
+              delta={pctChange(current.comments, previous.comments)}
+            />
+            <StatCell
+              label="Shares"
+              value={formatNumber(current.shares)}
+              delta={pctChange(current.shares, previous.shares)}
+            />
+            <StatCell
+              label="Saves"
+              value={formatNumber(current.saved)}
+              delta={pctChange(current.saved, previous.saved)}
+            />
+            <StatCell
+              label="Posts published"
+              value={formatNumber(current.postsPublished)}
+              delta={pctChange(
+                current.postsPublished,
+                previous.postsPublished,
+              )}
+              className="col-span-2"
+            />
+          </StatPanel>
+
+          <Card className="mt-6">
+            <SectionTitle meta={<Legend items={trendSeries} />}>
+              Trends
+            </SectionTitle>
+            <MultiLineTrend data={trend} series={trendSeries} />
+          </Card>
+
+          <Card className="mt-4">
+            <SectionTitle meta={<Legend items={followerSeries} />}>
+              Follower growth
+            </SectionTitle>
+            <MultiLineTrend data={trend} series={followerSeries} />
+          </Card>
 
           <div className="mt-8">
             <SectionTitle
-              meta={`top ${topContent.length}`}
+              meta={`${current.postsPublished} posts in range`}
               className="mb-4"
             >
-              Most popular content this week
+              Top content
             </SectionTitle>
             {topContent.length === 0 ? (
               <p className="text-[13px] text-muted">
-                No posts published in this window.
+                No posts published in this range.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">

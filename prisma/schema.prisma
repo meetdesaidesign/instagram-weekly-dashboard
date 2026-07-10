@@ -48,6 +48,9 @@ model Media {
   permalink    String?
   thumbnailUrl String?
   mediaUrl     String?
+  /// Locally cached thumbnail bytes (IG CDN URLs are signed and expire).
+  thumbData    Bytes?
+  thumbMime    String?
   timestamp    DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt

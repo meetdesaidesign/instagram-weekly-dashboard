@@ -1,74 +1,84 @@
-# Interface Design System — Monochrome
+# Interface Design System
 
 ## Direction and feel
 
-A precise instrument panel for Instagram growth, rendered in **strict black / grey / white**
-(Grok-style). The user is a creator checking their account's vitals: cool, focused,
-data-forward. Feels like a terminal for your account, not a brochure. Dense but never
-cramped; hierarchy comes from weight and value, never hue.
+A precise instrument panel for Instagram growth. The user is a creator checking
+their account's vitals: focused, data-forward. Surfaces stay neutral; color is
+scarce and only used where it carries meaning (action, status, series).
 
-- **No chromatic color anywhere.** The accent is black (light mode) / white (dark mode).
-- Meaning is never carried by hue alone: deltas use arrows + signs, status uses icons
-  (check / cross / alert) and text, chart series use greyscale steps + dash patterns.
-- Depth strategy: **borders only.** No drop shadows anywhere. Low-opacity black/white
-  alpha borders — no blue cast.
+- **Neutral canvas.** Grey/white surfaces and text hierarchy do the structural work.
+- **Color where required.** Warm orange accent for primary actions and brand marks;
+  green/red for deltas and status; a small chart palette for series.
+- Depth strategy: **borders only** for cards and panels. Active nav uses a soft
+  elevated shadow on a white (`surface`) chip so the current page reads clearly.
 
 ## Tokens
 
 Light (default):
 
-| Token        | Value                       | Role                          |
-|--------------|-----------------------------|-------------------------------|
-| background   | `#fafafa`                   | canvas                        |
-| surface      | `#ffffff`                   | cards                         |
-| surface-2    | `#f4f4f4`                   | insets, inputs, hover fills   |
-| surface-3    | `#ebebeb`                   | deeper insets                 |
-| border       | `rgba(0,0,0,0.10)`          | hairlines                     |
-| border-strong| `rgba(0,0,0,0.22)`          | emphasis / hover borders      |
-| foreground   | `#111111`                   | primary text                  |
-| muted        | `#555555`                   | secondary text                |
-| muted-2      | `#999999`                   | tertiary/metadata text        |
-| accent       | `#111111`                   | black — primary actions, nav  |
-| on-accent    | `#ffffff`                   | text on accent                |
-| success/danger| `#111111`                  | greyscale; icon/sign carries meaning |
-| chart-1..4   | `#111111 #666666 #a3a3a3 #cccccc` | series greys            |
+| Token         | Value                          | Role                              |
+|---------------|--------------------------------|-----------------------------------|
+| background    | `#f2f2f2`                      | canvas / sidebar                  |
+| surface       | `#ffffff`                      | main panel + cards                |
+| surface-2     | `#f4f4f4`                      | insets, inputs, hover fills       |
+| surface-3     | `#ebebeb`                      | deeper insets / active nav        |
+| border        | `rgba(0,0,0,0.10)`             | hairlines                         |
+| border-strong | `rgba(0,0,0,0.22)`             | emphasis / hover borders          |
+| foreground    | `#111111`                      | primary text                      |
+| muted         | `#555555`                      | secondary text                    |
+| muted-2       | `#999999`                      | tertiary/metadata text            |
+| accent        | `#ea580c`                      | orange — primary actions, brand   |
+| accent-soft   | `rgba(234,88,12,0.10)`         | soft accent fills                 |
+| on-accent     | `#ffffff`                      | text on accent                    |
+| success       | `#16a34a`                      | positive deltas, success state    |
+| danger        | `#dc2626`                      | negative deltas, errors           |
+| warning       | `#d97706`                      | warnings                          |
+| chart-1..4    | orange / blue / amber / teal   | series                            |
 
 Dark (`.dark`):
 
-| Token        | Value                       |
-|--------------|-----------------------------|
-| background   | `#0a0a0a`                   |
-| surface      | `#141414`                   |
-| surface-2    | `#1c1c1c`                   |
-| surface-3    | `#242424`                   |
-| border       | `rgba(255,255,255,0.11)`    |
-| border-strong| `rgba(255,255,255,0.24)`    |
-| foreground   | `#f0f0f0`                   |
-| muted        | `#a3a3a3`                   |
-| muted-2      | `#6b6b6b`                   |
-| accent       | `#f5f5f5` (white)           |
-| on-accent    | `#0a0a0a`                   |
-| success/danger| `#f0f0f0`                  |
-| chart-1..4   | `#f5f5f5 #a3a3a3 #737373 #4d4d4d` |
+| Token         | Value                          |
+|---------------|--------------------------------|
+| background    | `#0a0a0a`                      |
+| surface       | `#141414`                      |
+| surface-2     | `#1c1c1c`                      |
+| surface-3     | `#242424`                      |
+| border        | `rgba(255,255,255,0.11)`       |
+| border-strong | `rgba(255,255,255,0.24)`       |
+| foreground    | `#f0f0f0`                      |
+| muted         | `#a3a3a3`                      |
+| muted-2       | `#6b6b6b`                      |
+| accent        | `#fb923c`                      |
+| accent-soft   | `rgba(251,146,60,0.14)`        |
+| on-accent     | `#0a0a0a`                      |
+| success       | `#4ade80`                      |
+| danger        | `#f87171`                      |
+| warning       | `#fbbf24`                      |
+| chart-1..4    | orange / blue / amber / teal   |
 
 Theme switching: `next-themes`, `attribute="class"`, system default, manual override.
 
-## Monochrome semantics
+## Color usage (restraint)
 
-- **Deltas**: positive = `text-foreground`, negative = `text-muted`; direction always
-  shown by arrow icon (`ArrowUpRight` / `ArrowDownRight`) and `+`/`−` sign.
-- **Banners**: neutral surface + border-strong; `CheckCircle2` (success) or
-  `AlertCircle` (danger) icon carries the tone.
-- **Status badges**: filled black/white chip (`bg-accent text-on-accent`) = active/connected;
-  outline + muted text = inactive.
-- **Multi-series charts**: greyscale steps plus `strokeDasharray` per series
-  (solid, `5 3`, `2 2`, `7 3 2 3` — see `chartDashes` in `components/charts.tsx`);
-  legend swatches are line samples that mirror the dash.
-- **Toasts**: Sonner icons overridden to greyscale in `components/toaster.tsx`.
+Use chromatic color only for:
+
+1. **Accent** — primary buttons, logo mark, active nav icon, week strip, focus ring, selected chips.
+2. **Success / danger** — deltas, banners, config status, toast icons.
+3. **Charts** — series strokes/fills via `--chart-1..4`.
+
+Do **not** tint page backgrounds, cards, body text, or borders with brand color.
+
+- **Deltas**: positive = `text-success`, negative = `text-danger`; always also show
+  arrow icon and `+`/`−` sign (hue is not the only cue).
+- **Banners**: soft tinted fill + matching icon color.
+- **Status badges**: filled accent chip = active/connected; outline + muted = inactive.
+- **Multi-series charts**: color primary; `strokeDasharray` secondary
+  (solid, `5 3`, `2 2`, `7 3 2 3` — see `chartDashes`).
+- **Toasts**: success/danger/warning icons use semantic tokens.
 
 ## Typography
 
-- UI text: **Geist Sans**. Numerals, stat labels, deltas, timestamps, code-ish metadata: **Geist Mono**.
+- UI text: **Plus Jakarta Sans**. Numerals, stat labels, deltas, timestamps, code-ish metadata: **JetBrains Mono**.
 - Hero stat values: mono 28px/500, `tabular-nums`, letter-spacing -0.02em.
 - Secondary stat values: mono 20px/500.
 - Stat labels: mono 10px/500 uppercase, tracking 0.07em, muted.
@@ -80,7 +90,8 @@ Theme switching: `next-themes`, `attribute="class"`, system default, manual over
 ## Spacing, radius, density
 
 - Base unit 4px. Card padding **16px** (tight, workbench density). Section gaps 24–32px.
-- Radius scale: **6px** controls, **8px** cards, 12px modals. No pills except week-strip segments.
+- Radius scale: **6px** controls, **8px** cards, 12px modals, **20px** main content panel. No pills except week-strip segments.
+- Shell: sidebar sits on the canvas; main content is a bordered `surface` panel with `rounded-panel` and a gutter from the nav (no divider line).
 - Grid gaps: 12px between stat cards, 16px between chart cards.
 
 ## Signature
@@ -89,17 +100,15 @@ Theme switching: `next-themes`, `attribute="class"`, system default, manual over
 elapsed this week, accent color). Appears on: dashboard hero card, sync status,
 loading skeletons. Unique to this product's "week" mental model.
 
-Other signatures: mono uppercase labels with underscore styling available (`FOLLOWERS_GAINED`
-optional — keep normal spaces in real UI, mono uppercase is enough), hairline dividers,
-single-pixel accent left-edge on active nav item.
+Other signatures: mono uppercase labels, hairline dividers, orange brand mark.
 
 ## Component patterns
 
-- `Button primary` — 34px h · 8px 15px pad · 6px radius · 13px/500 · black bg (light) / white bg (dark), on-accent text.
+- `Button primary` — 34px h · accent bg · on-accent text.
 - `Button secondary` — same metrics · surface-2 bg · border.
 - `Card` — surface bg · 1px border · 8px radius · 16px pad.
-- `Input` — surface-2 bg (darker than card = inset) · 1px border · 6px radius · focus = accent border + 2px ring at 25% opacity.
-- Nav active item: surface-2 fill + 2px accent left edge + foreground text.
+- `Input` — control bg (darker than card = inset) · 1px border · 6px radius · focus = accent border + 2px ring.
+- Nav active item: white `surface` fill + soft elevated shadow + bold text + accent icon.
 - Chart grid: `--border` stroke dasharray 3 3, axes text mono 10px muted-2.
 - Tooltips/popovers: surface-2, border-strong, 8px radius.
 

@@ -3,14 +3,14 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   Monochrome — token architecture
-   Strict black / grey / white palette (Grok-style).
-   Light = paper, Dark = ink (see .interface-design/system.md)
+   Signal color on neutral surfaces
+   Canvas stays grey/white; hue only for accent, status, charts.
+   (see .interface-design/system.md)
    ============================================================ */
 
 :root {
   /* surfaces */
-  --background: #fafafa;
+  --background: #f2f2f2;
   --surface: #ffffff;
   --surface-2: #f4f4f4;
   --surface-3: #ebebeb;
@@ -21,24 +21,29 @@
   --foreground: #111111;
   --muted: #555555;
   --muted-2: #999999;
-  /* signal */
-  --accent: #111111;
-  --accent-soft: rgba(0, 0, 0, 0.06);
+  /* signal — warm orange accent (used sparingly) */
+  --accent: #ea580c;
+  --accent-soft: rgba(234, 88, 12, 0.1);
   --on-accent: #ffffff;
-  /* semantic (greyscale — direction/state carried by icons and signs) */
-  --success: #111111;
-  --success-soft: rgba(0, 0, 0, 0.05);
-  --danger: #111111;
-  --danger-soft: rgba(0, 0, 0, 0.05);
-  --warning: #555555;
+  /* semantic */
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.1);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
   /* charts */
-  --chart-1: #111111;
-  --chart-2: #666666;
-  --chart-3: #a3a3a3;
-  --chart-4: #cccccc;
+  --chart-1: #ea580c;
+  --chart-2: #2563eb;
+  --chart-3: #d97706;
+  --chart-4: #0d9488;
   /* controls */
   --control-bg: #f0f0f0;
-  --focus-ring: rgba(0, 0, 0, 0.25);
+  --focus-ring: rgba(234, 88, 12, 0.35);
+  /* elevation — active nav chip */
+  --shadow-elevated:
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .dark {
@@ -51,20 +56,23 @@
   --foreground: #f0f0f0;
   --muted: #a3a3a3;
   --muted-2: #6b6b6b;
-  --accent: #f5f5f5;
-  --accent-soft: rgba(255, 255, 255, 0.08);
+  --accent: #fb923c;
+  --accent-soft: rgba(251, 146, 60, 0.14);
   --on-accent: #0a0a0a;
-  --success: #f0f0f0;
-  --success-soft: rgba(255, 255, 255, 0.06);
-  --danger: #f0f0f0;
-  --danger-soft: rgba(255, 255, 255, 0.06);
-  --warning: #a3a3a3;
-  --chart-1: #f5f5f5;
-  --chart-2: #a3a3a3;
-  --chart-3: #737373;
-  --chart-4: #4d4d4d;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+  --warning: #fbbf24;
+  --chart-1: #fb923c;
+  --chart-2: #60a5fa;
+  --chart-3: #fbbf24;
+  --chart-4: #2dd4bf;
   --control-bg: #101010;
-  --focus-ring: rgba(255, 255, 255, 0.3);
+  --focus-ring: rgba(251, 146, 60, 0.4);
+  --shadow-elevated:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
@@ -90,11 +98,12 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-control: var(--control-bg);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans-face);
+  --font-mono: var(--font-mono-face);
   --radius-ctl: 6px;
   --radius-card: 8px;
   --radius-modal: 12px;
+  --radius-panel: 20px;
 }
 
 * {
@@ -111,7 +120,7 @@ html.dark {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans-face), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

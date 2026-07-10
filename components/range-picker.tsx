@@ -34,7 +34,7 @@ export function RangePicker({
   }
 
   function apply(nextStart: string, nextEnd: string) {
-    router.push(`/analytics?start=${nextStart}&end=${nextEnd}`);
+    router.push(`/?start=${nextStart}&end=${nextEnd}`);
   }
 
   const activeDays =

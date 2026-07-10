@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
-  CalendarRange,
   Lightbulb,
   PenLine,
   Settings,
@@ -14,7 +13,6 @@ import { ThemeToggle } from "@/components/theme";
 
 const links = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
-  { href: "/analytics", label: "Analytics", icon: CalendarRange },
   { href: "/ideas", label: "Ideas", icon: Lightbulb },
   { href: "/captions", label: "Captions", icon: PenLine },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -23,7 +21,7 @@ const links = [
 export function Nav() {
   const pathname = usePathname();
   return (
-    <aside className="hidden border-r border-border bg-background px-3 py-5 md:fixed md:inset-y-0 md:flex md:w-60 md:flex-col">
+    <aside className="hidden shrink-0 px-3 py-5 md:flex md:w-60 md:flex-col">
       <Link
         href="/"
         className="mb-8 flex items-center gap-2.5 rounded-ctl px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
@@ -44,16 +42,13 @@ export function Nav() {
               key={href}
               href={href}
               className={cn(
-                "relative flex items-center gap-3 rounded-ctl px-3 py-2 text-[13px] font-medium transition-colors",
+                "flex items-center gap-3 rounded-ctl px-3 py-2 text-[13px] transition-[background-color,color,box-shadow] duration-150",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 active
-                  ? "bg-surface-2 text-foreground"
-                  : "text-muted hover:bg-surface-2/60 hover:text-foreground",
+                  ? "bg-surface font-bold text-foreground shadow-[var(--shadow-elevated)]"
+                  : "font-medium text-muted hover:bg-surface/70 hover:text-foreground",
               )}
             >
-              {active && (
-                <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent" />
-              )}
               <Icon size={16} className={cn(active && "text-accent")} />
               {label}
             </Link>
@@ -82,8 +77,8 @@ export function MobileNav() {
             key={href}
             href={href}
             className={cn(
-              "flex min-w-14 flex-col items-center gap-1 rounded-ctl px-2 py-1.5 text-[10px] font-medium",
-              active ? "text-accent" : "text-muted",
+              "flex min-w-14 flex-col items-center gap-1 rounded-ctl px-2 py-1.5 text-[10px]",
+              active ? "font-bold text-accent" : "font-medium text-muted",
             )}
           >
             <Icon size={19} />

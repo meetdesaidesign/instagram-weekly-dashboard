@@ -12,9 +12,9 @@ export function Toaster() {
       position="bottom-right"
       gap={8}
       icons={{
-        success: <CheckCircle2 size={16} color="var(--foreground)" />,
-        error: <AlertCircle size={16} color="var(--foreground)" />,
-        warning: <TriangleAlert size={16} color="var(--muted)" />,
+        success: <CheckCircle2 size={16} color="var(--success)" />,
+        error: <AlertCircle size={16} color="var(--danger)" />,
+        warning: <TriangleAlert size={16} color="var(--warning)" />,
         info: <Info size={16} color="var(--muted)" />,
       }}
       toastOptions={{

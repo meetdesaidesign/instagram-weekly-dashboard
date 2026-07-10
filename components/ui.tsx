@@ -243,7 +243,7 @@ export function StatCard({
           <span
             className={cn(
               "flex items-center gap-0.5 font-mono text-[11px] font-medium tabular-nums",
-              positive ? "text-foreground" : "text-muted",
+              positive ? "text-success" : "text-danger",
             )}
           >
             {positive ? (
@@ -327,7 +327,7 @@ export function StatCell({
           <span
             className={cn(
               "flex items-center gap-0.5 font-mono text-[11px] font-medium tabular-nums",
-              positive ? "text-foreground" : "text-muted",
+              positive ? "text-success" : "text-danger",
             )}
           >
             {positive ? (
@@ -438,17 +438,18 @@ export function Banner({
     <div
       className={cn(
         "mb-4 flex items-start gap-2 rounded-card border p-3 text-[13px]",
-        tone === "muted"
-          ? "border-border bg-surface text-muted"
-          : "border-border-strong bg-surface text-foreground",
+        tone === "muted" && "border-border bg-surface text-muted",
+        tone === "success" &&
+          "border-success/25 bg-success-soft text-foreground",
+        tone === "danger" && "border-danger/25 bg-danger-soft text-foreground",
         className,
       )}
     >
       {tone === "success" && (
-        <CheckCircle2 size={15} className="mt-0.5 shrink-0" />
+        <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-success" />
       )}
       {tone === "danger" && (
-        <AlertCircle size={15} className="mt-0.5 shrink-0" />
+        <AlertCircle size={15} className="mt-0.5 shrink-0 text-danger" />
       )}
       <span>{children}</span>
     </div>
@@ -459,7 +460,7 @@ export function ConfigRow({ ok, label }: { ok: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2">
       {ok ? (
-        <CheckCircle2 size={15} className="text-foreground" />
+        <CheckCircle2 size={15} className="text-success" />
       ) : (
         <XCircle size={15} className="text-muted-2" />
       )}

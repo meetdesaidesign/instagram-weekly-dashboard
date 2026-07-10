@@ -13,8 +13,9 @@ export const chartColors = {
 } as const;
 
 /**
- * Dash patterns to tell greyscale series apart when shade alone is
- * not enough (multi-series charts). 1 = solid.
+ * Dash patterns as a secondary cue for multi-series charts
+ * (color is primary; dashes help when series share a hue family).
+ * 1 = solid.
  */
 export const chartDashes = {
   1: undefined,

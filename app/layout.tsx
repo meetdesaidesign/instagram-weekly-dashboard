@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav, MobileNav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme";
 import { Toaster } from "@/components/toaster";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-sans-face",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono-face",
   subsets: ["latin"],
 });
 
@@ -30,16 +30,20 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body className="min-h-full md:h-dvh md:overflow-hidden">
         <ThemeProvider>
-          <Nav />
-          <main className="md:pl-60">
-            <div className="mx-auto max-w-6xl px-4 md:px-8 py-6 pb-24 md:pb-10">
-              {children}
-            </div>
-          </main>
+          <div className="md:flex md:h-full">
+            <Nav />
+            <main className="min-w-0 flex-1 md:p-3 md:pl-0">
+              <div className="md:h-full md:overflow-y-auto md:rounded-panel md:border md:border-border md:bg-surface">
+                <div className="w-full px-4 py-6 pb-24 md:px-8 md:pb-10">
+                  {children}
+                </div>
+              </div>
+            </main>
+          </div>
           <MobileNav />
           <Toaster />
         </ThemeProvider>

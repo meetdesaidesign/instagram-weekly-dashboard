@@ -22,7 +22,7 @@ export interface SeriesPoint {
 
 const axisStyle = {
   fontSize: 10,
-  fontFamily: "var(--font-geist-mono)",
+  fontFamily: "var(--font-mono-face)",
   fill: "var(--muted-2)",
 } as const;
 

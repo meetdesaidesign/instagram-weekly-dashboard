@@ -147,7 +147,8 @@ export async function getTopContent(
       caption: m.caption,
       productType: m.productType,
       permalink: m.permalink,
-      thumbnailUrl: m.thumbnailUrl,
+      // Prefer the locally cached copy; IG CDN URLs expire within days.
+      thumbnailUrl: m.thumbMime ? `/api/thumbnails/${m.id}` : m.thumbnailUrl,
       timestamp: m.timestamp ? m.timestamp.toISOString() : null,
       views: s?.views ?? 0,
       reach: s?.reach ?? 0,

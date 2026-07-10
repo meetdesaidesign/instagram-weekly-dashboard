@@ -102,7 +102,7 @@ export default async function SettingsPage({
 
         {!igConfigured && (
           <div className="mt-4 flex items-start gap-2 rounded-ctl bg-surface-2 p-3 text-xs text-muted">
-            <AlertTriangle size={15} className="mt-0.5 shrink-0 text-muted" />
+            <AlertTriangle size={15} className="mt-0.5 shrink-0 text-warning" />
             <span>
               Set <code>INSTAGRAM_APP_ID</code> and{" "}
               <code>INSTAGRAM_APP_SECRET</code> from your Meta Developer app,
