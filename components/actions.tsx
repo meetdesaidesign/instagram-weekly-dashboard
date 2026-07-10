@@ -3,77 +3,67 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui";
 
 export function SyncButton({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
   const router = useRouter();
 
   async function run() {
     setLoading(true);
-    setMsg(null);
     try {
       const res = await fetch("/api/sync", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? "Sync failed");
-      setMsg("Synced");
+      toast.success("Synced with Instagram");
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : "Sync failed");
     } finally {
       setLoading(false);
-      setTimeout(() => setMsg(null), 4000);
     }
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {msg && <span className="text-xs text-muted">{msg}</span>}
-      <button
-        onClick={run}
-        disabled={loading}
-        className={cn("btn btn-secondary", className)}
-      >
-        <RefreshCw size={16} className={cn(loading && "animate-spin")} />
-        {loading ? "Syncing…" : "Sync now"}
-      </button>
-    </div>
+    <Button onClick={run} disabled={loading} className={className}>
+      <RefreshCw size={14} className={cn(loading && "animate-spin")} />
+      {loading ? "Syncing…" : "Sync now"}
+    </Button>
   );
 }
 
 export function GenerateIdeasButton({ className }: { className?: string }) {
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
   const router = useRouter();
 
   async function run() {
     setLoading(true);
-    setMsg(null);
     try {
       const res = await fetch("/api/ideas/generate", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error ?? "Failed");
+      toast.success("Fresh ideas generated");
       router.refresh();
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Failed");
+      toast.error(
+        e instanceof Error ? e.message : "Failed to generate ideas",
+      );
     } finally {
       setLoading(false);
-      setTimeout(() => setMsg(null), 5000);
     }
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {msg && <span className="text-xs text-danger">{msg}</span>}
-      <button
-        onClick={run}
-        disabled={loading}
-        className={cn("btn brand-gradient btn-primary", className)}
-      >
-        <Sparkles size={16} />
-        {loading ? "Generating…" : "Generate ideas"}
-      </button>
-    </div>
+    <Button
+      variant="primary"
+      onClick={run}
+      disabled={loading}
+      className={className}
+    >
+      <Sparkles size={14} />
+      {loading ? "Generating…" : "Generate ideas"}
+    </Button>
   );
 }

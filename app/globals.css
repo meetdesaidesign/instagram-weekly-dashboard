@@ -1,36 +1,111 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Monochrome — token architecture
+   Strict black / grey / white palette (Grok-style).
+   Light = paper, Dark = ink (see .interface-design/system.md)
+   ============================================================ */
+
 :root {
-  --background: #0b0b0f;
-  --surface: #14141b;
-  --surface-2: #1c1c26;
-  --border: #2a2a37;
-  --foreground: #f5f5f7;
-  --muted: #a1a1b3;
-  --muted-2: #6d6d80;
-  --brand: #d6377b;
-  --brand-2: #f77737;
-  --brand-3: #a537d6;
-  --success: #34d399;
-  --danger: #f87171;
+  /* surfaces */
+  --background: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f4;
+  --surface-3: #ebebeb;
+  /* lines */
+  --border: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.22);
+  /* text */
+  --foreground: #111111;
+  --muted: #555555;
+  --muted-2: #999999;
+  /* signal */
+  --accent: #111111;
+  --accent-soft: rgba(0, 0, 0, 0.06);
+  --on-accent: #ffffff;
+  /* semantic (greyscale — direction/state carried by icons and signs) */
+  --success: #111111;
+  --success-soft: rgba(0, 0, 0, 0.05);
+  --danger: #111111;
+  --danger-soft: rgba(0, 0, 0, 0.05);
+  --warning: #555555;
+  /* charts */
+  --chart-1: #111111;
+  --chart-2: #666666;
+  --chart-3: #a3a3a3;
+  --chart-4: #cccccc;
+  /* controls */
+  --control-bg: #f0f0f0;
+  --focus-ring: rgba(0, 0, 0, 0.25);
+}
+
+.dark {
+  --background: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1c;
+  --surface-3: #242424;
+  --border: rgba(255, 255, 255, 0.11);
+  --border-strong: rgba(255, 255, 255, 0.24);
+  --foreground: #f0f0f0;
+  --muted: #a3a3a3;
+  --muted-2: #6b6b6b;
+  --accent: #f5f5f5;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  --on-accent: #0a0a0a;
+  --success: #f0f0f0;
+  --success-soft: rgba(255, 255, 255, 0.06);
+  --danger: #f0f0f0;
+  --danger-soft: rgba(255, 255, 255, 0.06);
+  --warning: #a3a3a3;
+  --chart-1: #f5f5f5;
+  --chart-2: #a3a3a3;
+  --chart-3: #737373;
+  --chart-4: #4d4d4d;
+  --control-bg: #101010;
+  --focus-ring: rgba(255, 255, 255, 0.3);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-brand: var(--brand);
+  --color-muted-2: var(--muted-2);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
   --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-control: var(--control-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius-ctl: 6px;
+  --radius-card: 8px;
+  --radius-modal: 12px;
 }
 
 * {
   border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -40,85 +115,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.brand-gradient {
-  background-image: linear-gradient(
-    95deg,
-    var(--brand-2) 0%,
-    var(--brand) 45%,
-    var(--brand-3) 100%
-  );
-}
-
-.brand-text {
-  background-image: linear-gradient(
-    95deg,
-    var(--brand-2) 0%,
-    var(--brand) 45%,
-    var(--brand-3) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-}
-
-.input {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--foreground);
-  padding: 0.6rem 0.8rem;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-.input:focus {
-  border-color: var(--brand);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border-radius: 10px;
-  padding: 0.6rem 1rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition:
-    opacity 0.15s ease,
-    background 0.15s ease,
-    transform 0.05s ease;
-  border: 1px solid transparent;
-}
-.btn:active {
-  transform: translateY(1px);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn-primary {
-  color: white;
-}
-.btn-secondary {
-  background: var(--surface-2);
-  border-color: var(--border);
-  color: var(--foreground);
-}
-.btn-secondary:hover {
-  background: var(--border);
-}
-
 ::selection {
-  background: var(--brand);
-  color: white;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -126,6 +125,43 @@ body {
   width: 8px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--border-strong);
   border-radius: 8px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Entrance motion — subtle rise, staggered per item via --stagger-i */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--stagger-i, 0) * 40ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { PageHeader, Card } from "@/components/ui";
+import { PageHeader, Card, Disclosure, SectionTitle } from "@/components/ui";
 import { CaptionForm } from "@/components/caption-form";
 import { isOpenAIConfigured } from "@/lib/config";
 
@@ -33,23 +33,24 @@ export default async function CaptionsPage() {
 
       {recent.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-semibold mb-4">Recent captions</h2>
-          <div className="flex flex-col gap-3">
+          <SectionTitle meta={`last ${recent.length}`} className="mb-4">
+            Recent captions
+          </SectionTitle>
+          <div className="flex flex-col gap-2">
             {recent.map((run) => (
-              <details key={run.id} className="card p-4">
-                <summary className="cursor-pointer text-sm font-medium flex items-center justify-between gap-3">
-                  <span className="truncate">{run.topic}</span>
-                  <span className="text-xs text-muted shrink-0">
-                    {run.createdAt.toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </summary>
-                <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-foreground/90 leading-relaxed">
+              <Disclosure
+                key={run.id}
+                title={run.topic}
+                meta={run.createdAt.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  timeZone: "UTC",
+                })}
+              >
+                <pre className="whitespace-pre-wrap font-sans text-[13px] leading-relaxed text-foreground">
                   {run.output}
                 </pre>
-              </details>
+              </Disclosure>
             ))}
           </div>
         </div>

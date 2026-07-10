@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button, Input } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 const PRESETS = [
   { label: "7d", days: 7 },
@@ -10,69 +12,88 @@ const PRESETS = [
   { label: "90d", days: 90 },
 ];
 
-function keyMinusDays(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - days + 1);
-  return d.toISOString().slice(0, 10);
-}
-
 export function RangePicker({
   start,
   end,
+  today,
 }: {
   start: string;
   end: string;
+  /** Today's date key in the app timezone (from the server) */
+  today: string;
 }) {
   const router = useRouter();
   const [s, setS] = useState(start);
   const [e, setE] = useState(end);
 
+  function keyMinusDays(days: number): string {
+    // Anchor on the server-provided app-timezone date, not browser-local time
+    const d = new Date(today + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() - days + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
   function apply(nextStart: string, nextEnd: string) {
     router.push(`/analytics?start=${nextStart}&end=${nextEnd}`);
   }
 
+  const activeDays =
+    e === today
+      ? Math.round(
+          (Date.parse(e + "T00:00:00Z") - Date.parse(s + "T00:00:00Z")) /
+            86_400_000,
+        ) + 1
+      : null;
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="flex gap-1">
-        {PRESETS.map((p) => (
+      <div className="flex overflow-hidden rounded-ctl border border-border">
+        {PRESETS.map((p, i) => (
           <button
             key={p.label}
             onClick={() => {
               const ns = keyMinusDays(p.days);
-              const ne = new Date().toISOString().slice(0, 10);
               setS(ns);
-              setE(ne);
-              apply(ns, ne);
+              setE(today);
+              apply(ns, today);
             }}
-            className="btn btn-secondary py-1.5 px-3 text-xs"
+            className={cn(
+              "h-[30px] cursor-pointer px-3 font-mono text-[11px] font-medium transition-colors",
+              i > 0 && "border-l border-border",
+              activeDays === p.days
+                ? "bg-accent-soft text-accent"
+                : "bg-surface-2 text-muted hover:bg-surface-3 hover:text-foreground",
+            )}
           >
             {p.label}
           </button>
         ))}
       </div>
       <div className="flex items-center gap-2">
-        <input
+        <Input
           type="date"
           value={s}
           max={e}
           onChange={(ev) => setS(ev.target.value)}
-          className="input py-1.5 text-xs w-auto"
+          className="h-[30px] w-auto py-0 font-mono text-[11px]"
         />
-        <span className="text-muted text-xs">to</span>
-        <input
+        <span className="text-xs text-muted-2">to</span>
+        <Input
           type="date"
           value={e}
           min={s}
-          max={new Date().toISOString().slice(0, 10)}
+          max={today}
           onChange={(ev) => setE(ev.target.value)}
-          className="input py-1.5 text-xs w-auto"
+          className="h-[30px] w-auto py-0 font-mono text-[11px]"
         />
-        <button
+        <Button
+          variant="primary"
+          size="sm"
+          className="h-[30px]"
           onClick={() => apply(s, e)}
-          className="btn brand-gradient btn-primary py-1.5 px-4 text-xs"
         >
           Apply
-        </button>
+        </Button>
       </div>
     </div>
   );

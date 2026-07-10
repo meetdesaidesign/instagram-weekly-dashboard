@@ -17,6 +17,7 @@ export function ContentCard({
     ? new Date(item.timestamp).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
+        timeZone: "UTC",
       })
     : "";
 
@@ -25,7 +26,8 @@ export function ContentCard({
       href={item.permalink ?? "#"}
       target="_blank"
       rel="noopener noreferrer"
-      className="card overflow-hidden group flex flex-col hover:border-[var(--brand)] transition-colors"
+      className="rise-in group flex flex-col overflow-hidden rounded-card border border-border bg-surface transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      style={{ "--stagger-i": Math.min((rank ?? 1) - 1, 8) } as React.CSSProperties}
     >
       <div className="relative aspect-square bg-surface-2 overflow-hidden">
         {item.thumbnailUrl ? (
@@ -34,14 +36,14 @@ export function ContentCard({
             alt={short || "post"}
             fill
             unoptimized
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 50vw, 200px"
           />
         ) : (
-          <div className="brand-gradient absolute inset-0 opacity-20" />
+          <div className="absolute inset-0 bg-accent-soft" />
         )}
         {rank !== undefined && (
-          <span className="absolute top-2 left-2 h-6 w-6 rounded-full bg-black/70 text-white text-xs font-bold flex items-center justify-center backdrop-blur">
+          <span className="absolute top-2 left-2 flex h-5 min-w-5 items-center justify-center rounded-ctl bg-black/70 px-1 font-mono text-[10px] font-semibold text-white backdrop-blur">
             {rank}
           </span>
         )}
@@ -55,13 +57,13 @@ export function ContentCard({
         <p className="text-xs text-muted line-clamp-2 min-h-[2rem]">
           {short || "(no caption)"}
         </p>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted mt-auto">
-          <Stat icon={<Eye size={13} />} value={item.views} />
-          <Stat icon={<Heart size={13} />} value={item.likes} />
-          <Stat icon={<MessageCircle size={13} />} value={item.comments} />
-          <Stat icon={<Send size={13} />} value={item.shares} />
-          <Stat icon={<Bookmark size={13} />} value={item.saved} />
-          <span className="text-[var(--muted-2)] text-right">{date}</span>
+        <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px] tabular-nums text-muted">
+          <Stat icon={<Eye size={12} />} value={item.views} />
+          <Stat icon={<Heart size={12} />} value={item.likes} />
+          <Stat icon={<MessageCircle size={12} />} value={item.comments} />
+          <Stat icon={<Send size={12} />} value={item.shares} />
+          <Stat icon={<Bookmark size={12} />} value={item.saved} />
+          <span className="text-right text-muted-2">{date}</span>
         </div>
       </div>
     </a>

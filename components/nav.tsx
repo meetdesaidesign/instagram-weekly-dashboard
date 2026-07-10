@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, CalendarRange, Lightbulb, PenLine, Settings } from "lucide-react";
+import {
+  BarChart3,
+  CalendarRange,
+  Lightbulb,
+  PenLine,
+  Settings,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme";
 
 const links = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
@@ -16,14 +23,19 @@ const links = [
 export function Nav() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 border-r border-border bg-surface/50 backdrop-blur px-3 py-5">
-      <Link href="/" className="flex items-center gap-2 px-3 mb-8">
-        <span className="brand-gradient h-8 w-8 rounded-xl flex items-center justify-center text-white font-black">
+    <aside className="hidden border-r border-border bg-background px-3 py-5 md:fixed md:inset-y-0 md:flex md:w-60 md:flex-col">
+      <Link
+        href="/"
+        className="mb-8 flex items-center gap-2.5 rounded-ctl px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-ctl bg-accent font-mono text-[11px] font-semibold text-on-accent">
           IG
         </span>
-        <span className="font-semibold tracking-tight">Weekly Insights</span>
+        <span className="text-sm font-semibold tracking-tight text-foreground">
+          Weekly Insights
+        </span>
       </Link>
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-0.5">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -32,20 +44,27 @@ export function Nav() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                "relative flex items-center gap-3 rounded-ctl px-3 py-2 text-[13px] font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
                 active
                   ? "bg-surface-2 text-foreground"
-                  : "text-muted hover:text-foreground hover:bg-surface-2/60",
+                  : "text-muted hover:bg-surface-2/60 hover:text-foreground",
               )}
             >
-              <Icon size={18} className={cn(active && "brand-text")} />
+              {active && (
+                <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-accent" />
+              )}
+              <Icon size={16} className={cn(active && "text-accent")} />
               {label}
             </Link>
           );
         })}
       </nav>
-      <div className="mt-auto px-3 text-xs text-[var(--muted-2)]">
-        Auto-syncs daily at 12pm IST
+      <div className="mt-auto flex flex-col gap-3 px-3">
+        <ThemeToggle />
+        <p className="font-mono text-[10px] uppercase tracking-wider text-muted-2">
+          Auto-syncs daily · 12pm IST
+        </p>
       </div>
     </aside>
   );
@@ -54,7 +73,7 @@ export function Nav() {
 export function MobileNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-border bg-surface/90 backdrop-blur flex justify-around py-2">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-around border-t border-border bg-background/95 py-1.5 backdrop-blur md:hidden">
       {links.map(({ href, label, icon: Icon }) => {
         const active =
           href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -63,11 +82,11 @@ export function MobileNav() {
             key={href}
             href={href}
             className={cn(
-              "flex flex-col items-center gap-1 px-2 py-1 text-[10px] font-medium",
-              active ? "brand-text" : "text-muted",
+              "flex min-w-14 flex-col items-center gap-1 rounded-ctl px-2 py-1.5 text-[10px] font-medium",
+              active ? "text-accent" : "text-muted",
             )}
           >
-            <Icon size={20} />
+            <Icon size={19} />
             {label}
           </Link>
         );

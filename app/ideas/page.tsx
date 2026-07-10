@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { PageHeader, Card, EmptyState, Badge } from "@/components/ui";
+import {
+  PageHeader,
+  Card,
+  EmptyState,
+  Badge,
+  Disclosure,
+  SectionTitle,
+} from "@/components/ui";
 import { GenerateIdeasButton } from "@/components/actions";
 import type { GeneratedIdea } from "@/lib/openai";
 import { isOpenAIConfigured } from "@/lib/config";
@@ -53,36 +60,44 @@ export default async function IdeasPage() {
         />
       ) : (
         <>
-          <p className="text-sm text-muted mb-4">
+          <SectionTitle meta={`${ideas.length} ideas`} className="mb-4">
             Latest batch · week of {formatWeek(latest.weekOf)}
-          </p>
+          </SectionTitle>
           <div className="grid gap-4 md:grid-cols-2">
             {ideas.map((idea, i) => (
-              <Card key={i} className="flex flex-col gap-3">
+              <Card
+                key={i}
+                className="rise-in flex flex-col gap-3"
+                style={{ "--stagger-i": Math.min(i, 8) } as React.CSSProperties}
+              >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="brand-gradient h-7 w-7 shrink-0 rounded-lg flex items-center justify-center text-white text-xs font-bold">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-ctl bg-accent-soft font-mono text-[11px] font-semibold text-accent">
                       {i + 1}
                     </span>
-                    <h3 className="font-semibold leading-snug">{idea.title}</h3>
+                    <h3 className="text-sm font-semibold leading-snug text-foreground">
+                      {idea.title}
+                    </h3>
                   </div>
                   <Badge>{idea.format}</Badge>
                 </div>
                 {idea.hook && (
-                  <div className="rounded-lg bg-surface-2 p-3">
-                    <p className="text-[11px] uppercase tracking-wide text-[var(--muted-2)] mb-1">
+                  <div className="rounded-ctl bg-surface-2 p-3">
+                    <p className="mb-1 font-mono text-[10px] uppercase tracking-wider text-muted-2">
                       Hook
                     </p>
-                    <p className="text-sm text-foreground/90">
+                    <p className="text-[13px] text-foreground">
                       &ldquo;{idea.hook}&rdquo;
                     </p>
                   </div>
                 )}
                 {idea.outline && (
-                  <p className="text-sm text-muted">{idea.outline}</p>
+                  <p className="text-[13px] leading-relaxed text-muted">
+                    {idea.outline}
+                  </p>
                 )}
                 {idea.rationale && (
-                  <p className="flex items-start gap-1.5 text-xs text-[var(--muted-2)]">
+                  <p className="flex items-start gap-1.5 text-xs text-muted-2">
                     <Lightbulb size={13} className="mt-0.5 shrink-0" />
                     {idea.rationale}
                   </p>
@@ -93,28 +108,37 @@ export default async function IdeasPage() {
 
           {history.length > 0 && (
             <div className="mt-10">
-              <h2 className="text-lg font-semibold mb-4">Past batches</h2>
-              <div className="flex flex-col gap-3">
+              <SectionTitle meta={`${history.length} weeks`} className="mb-4">
+                Past batches
+              </SectionTitle>
+              <div className="flex flex-col gap-2">
                 {history.map((b) => {
                   const bIdeas =
                     (b.ideas as unknown as GeneratedIdea[]) ?? [];
                   return (
-                    <details key={b.id} className="card p-4 group">
-                      <summary className="cursor-pointer text-sm font-medium flex items-center justify-between">
-                        Week of {formatWeek(b.weekOf)}
-                        <span className="text-xs text-muted">
-                          {bIdeas.length} ideas
-                        </span>
-                      </summary>
-                      <ul className="mt-3 flex flex-col gap-2 list-disc pl-5">
+                    <Disclosure
+                      key={b.id}
+                      title={`Week of ${formatWeek(b.weekOf)}`}
+                      meta={`${bIdeas.length} ideas`}
+                    >
+                      <ul className="flex flex-col gap-2">
                         {bIdeas.map((idea, i) => (
-                          <li key={i} className="text-sm text-muted">
-                            <span className="text-foreground">{idea.title}</span>{" "}
-                            — {idea.format}
+                          <li
+                            key={i}
+                            className="flex items-baseline gap-2 text-[13px]"
+                          >
+                            <span className="font-mono text-[10px] tabular-nums text-muted-2">
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <span className="text-foreground">
+                              {idea.title}
+                            </span>
+                            <span className="text-muted-2">·</span>
+                            <span className="text-muted">{idea.format}</span>
                           </li>
                         ))}
                       </ul>
-                    </details>
+                    </Disclosure>
                   );
                 })}
               </div>
