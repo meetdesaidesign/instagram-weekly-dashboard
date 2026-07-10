@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Direction Specimens — Instagram Weekly Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Geist", system-ui, sans-serif;
+    background: #232323;
+    -webkit-font-smoothing: antialiased;
+    padding: 28px;
+  }
+  .direction { margin-bottom: 48px; }
+  .direction-title { color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .direction-sub { color: #9a9a9a; font-size: 12px; margin-bottom: 14px; max-width: 900px; line-height: 1.5; }
+  .panels { display: flex; gap: 18px; }
+  .panel {
+    width: 540px; border-radius: 14px; padding: 28px;
+    background: var(--bg); color: var(--text);
+  }
+  .panel-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted-2); margin-bottom: 18px;
+  }
+  .swatches { display: flex; gap: 8px; margin-bottom: 22px; }
+  .swatch { flex: 1; }
+  .swatch-chip { height: 34px; border-radius: 7px; border: 1px solid var(--border); }
+  .swatch-name { font-size: 9px; color: var(--muted-2); margin-top: 4px; letter-spacing: 0.04em; }
+
+  .row { display: flex; gap: 14px; align-items: stretch; }
+  .col { flex: 1; min-width: 0; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: var(--pad);
+    box-shadow: var(--shadow, none);
+  }
+  .stat-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stat-value {
+    font-variant-numeric: tabular-nums; color: var(--text);
+    line-height: 1.05; margin-top: 8px;
+  }
+  .stat-delta { font-size: 12px; font-weight: 500; margin-top: 8px; }
+  .stat-hint { font-size: 11px; color: var(--muted-2); margin-top: 4px; }
+  .up { color: var(--success); }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 22px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 8px 15px; border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+
+  .navrow { display: flex; gap: 6px; margin-top: 22px; }
+  .navitem {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; padding: 7px 13px; border-radius: var(--radius-sm);
+    color: var(--muted);
+  }
+  .navitem.active { background: var(--surface-2); color: var(--text); }
+  .navitem .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); }
+
+  .type-sample { margin-bottom: 22px; }
+  .type-h1 { color: var(--text); }
+  .type-body { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.55; }
+  .type-caption { font-size: 11px; color: var(--muted-2); margin-top: 6px; }
+  svg { display: block; }
+  .chart-title { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 10px; }
+
+  /* week strip signature (shared motif, expressed per direction) */
+  .weekstrip { display: flex; gap: 4px; margin-top: 14px; }
+  .weekstrip span { height: 4px; flex: 1; border-radius: 2px; background: var(--surface-2); }
+  .weekstrip span.on { background: var(--accent); }
+
+  /* ============ A. PRINT STUDIO ============ */
+  .print { --radius: 6px; --radius-sm: 4px; --pad: 20px; }
+  .print .stat-value, .print .type-h1 {
+    font-family: "Fraunces", serif; font-weight: 500; letter-spacing: -0.01em;
+  }
+  .print .type-h1 { font-size: 30px; }
+  .print .stat-value { font-size: 34px; }
+  .print-light {
+    --bg: #f7f2e9; --surface: #fdfaf4; --surface-2: #efe7d8;
+    --border: rgba(62, 44, 26, 0.16); --text: #241c12; --muted: #6e6150;
+    --muted-2: #a29480; --accent: #b4400f; --on-accent: #fdfaf4;
+    --success: #3d7a46; --danger: #b03a34;
+  }
+  .print-dark {
+    --bg: #181410; --surface: #201b15; --surface-2: #2a231b;
+    --border: rgba(242, 228, 202, 0.13); --text: #f0e8d8; --muted: #b0a28c;
+    --muted-2: #7d7160; --accent: #e06a35; --on-accent: #181410;
+    --success: #7dbb86; --danger: #e08078;
+  }
+
+  /* ============ B. SIGNAL ROOM ============ */
+  .signal { --radius: 4px; --radius-sm: 3px; --pad: 16px; }
+  .signal .stat-value {
+    font-family: "Geist Mono", monospace; font-weight: 500; font-size: 28px; letter-spacing: -0.02em;
+  }
+  .signal .type-h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .signal .stat-label { font-family: "Geist Mono", monospace; font-size: 10px; }
+  .signal .stat-delta { font-family: "Geist Mono", monospace; font-size: 11px; }
+  .signal-dark {
+    --bg: #0a0c10; --surface: #10131a; --surface-2: #171b24;
+    --border: rgba(190, 205, 235, 0.11); --text: #e8ecf4; --muted: #97a0b3;
+    --muted-2: #5d6577; --accent: #f23d7b; --on-accent: #0a0c10;
+    --success: #37d5a0; --danger: #ff6a5e;
+  }
+  .signal-light {
+    --bg: #eef0f3; --surface: #f9fafb; --surface-2: #e4e7ec;
+    --border: rgba(30, 41, 66, 0.14); --text: #171c26; --muted: #545d6e;
+    --muted-2: #8b94a6; --accent: #d61f63; --on-accent: #fdfdfe;
+    --success: #0d8a63; --danger: #cc3a2f;
+  }
+
+  /* ============ C. SOFT STUDIO ============ */
+  .soft { --radius: 14px; --radius-sm: 9px; --pad: 20px; }
+  .soft .stat-value { font-size: 30px; font-weight: 650; letter-spacing: -0.025em; }
+  .soft .type-h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.025em; }
+  .soft-light {
+    --bg: #f6f4f7; --surface: #fdfcfd; --surface-2: #efecf1;
+    --border: rgba(72, 52, 84, 0.10); --text: #221c28; --muted: #6d6478;
+    --muted-2: #a29aad; --accent: #c13584; --on-accent: #fdfcfd;
+    --success: #2e8a5c; --danger: #c94a42;
+    --shadow: 0 0 0 1px rgba(40,25,55,.04), 0 1px 2px -1px rgba(40,25,55,.06), 0 2px 6px rgba(40,25,55,.05);
+  }
+  .soft-dark {
+    --bg: #131117; --surface: #1b1821; --surface-2: #241f2c;
+    --border: rgba(226, 214, 240, 0.10); --text: #f1edf5; --muted: #a89fb5;
+    --muted-2: #6f677c; --accent: #e05fa8; --on-accent: #17141c;
+    --success: #5cc48e; --danger: #e57b72;
+  }
+  .soft .accent-hairline {
+    height: 3px; border-radius: 999px; margin: -6px 0 14px;
+    background: linear-gradient(90deg, #f77737, #e0489a, #a537d6);
+    width: 42px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= DIRECTION A ================= -->
+<div class="direction">
+  <div class="direction-title">A — Print Studio</div>
+  <div class="direction-sub">Editorial, like a beautifully typeset weekly report. Warm paper and darkroom tones, Fraunces serif for hero numbers, hairline borders, terracotta accent. Calm and personal — your week in print.</div>
+  <div class="panels">
+
+    <div class="panel print print-light">
+      <div class="panel-tag">Light — Paper</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">terracotta</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="stat-label">Followers gained</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ 12.4% vs last week</div>
+          <div class="stat-hint">12,480 total</div>
+          <div class="weekstrip"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="88" viewBox="0 0 220 88" preserveAspectRatio="none">
+            <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#b4400f" stop-opacity="0.28"/><stop offset="100%" stop-color="#b4400f" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14 L220,88 L0,88 Z" fill="url(#ga)"/>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14" fill="none" stroke="var(--accent)" stroke-width="1.75"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+    <div class="panel print print-dark">
+      <div class="panel-tag">Dark — Darkroom</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">amber</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="stat-label">Followers gained</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ 12.4% vs last week</div>
+          <div class="stat-hint">12,480 total</div>
+          <div class="weekstrip"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="88" viewBox="0 0 220 88" preserveAspectRatio="none">
+            <defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e06a35" stop-opacity="0.28"/><stop offset="100%" stop-color="#e06a35" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14 L220,88 L0,88 Z" fill="url(#gb)"/>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14" fill="none" stroke="var(--accent)" stroke-width="1.75"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= DIRECTION B ================= -->
+<div class="direction">
+  <div class="direction-title">B — Signal Room</div>
+  <div class="direction-sub">A precise instrument panel for growth. Cool near-black, mono numerals, tight density, hairline rules. One electric pink signal color — Instagram's hue distilled to a single sharp accent. Feels like a terminal for your account.</div>
+  <div class="panels">
+
+    <div class="panel signal signal-dark">
+      <div class="panel-tag">Dark — Console</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">signal pink</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="stat-label">FOLLOWERS_GAINED</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ +12.4%</div>
+          <div class="stat-hint">12,480 total</div>
+          <div class="weekstrip"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="88" viewBox="0 0 220 88" preserveAspectRatio="none">
+            <defs><linearGradient id="gc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f23d7b" stop-opacity="0.25"/><stop offset="100%" stop-color="#f23d7b" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14 L220,88 L0,88 Z" fill="url(#gc)"/>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+    <div class="panel signal signal-light">
+      <div class="panel-tag">Light — Paper terminal</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">signal pink</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="stat-label">FOLLOWERS_GAINED</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ +12.4%</div>
+          <div class="stat-hint">12,480 total</div>
+          <div class="weekstrip"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="88" viewBox="0 0 220 88" preserveAspectRatio="none">
+            <defs><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#d61f63" stop-opacity="0.22"/><stop offset="100%" stop-color="#d61f63" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14 L220,88 L0,88 Z" fill="url(#gd)"/>
+            <path d="M0,70 C20,66 34,50 55,52 C76,54 90,30 110,34 C130,38 148,20 168,16 C188,12 205,22 220,14" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= DIRECTION C ================= -->
+<div class="direction">
+  <div class="direction-title">C — Soft Studio</div>
+  <div class="direction-sub">A refined creator workspace. Soft neutrals with a subtle violet cast, generous radii, whisper-quiet layered shadows in light mode. The Instagram gradient survives as one small hairline signature, never sprayed. Closest evolution of the current app.</div>
+  <div class="panels">
+
+    <div class="panel soft soft-light">
+      <div class="panel-tag">Light — Studio</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">magenta</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="accent-hairline"></div>
+          <div class="stat-label">Followers gained</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ 12.4% vs last week</div>
+          <div class="stat-hint">12,480 total</div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="94" viewBox="0 0 220 94" preserveAspectRatio="none">
+            <defs><linearGradient id="ge" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#c13584" stop-opacity="0.22"/><stop offset="100%" stop-color="#c13584" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,74 C20,70 34,54 55,56 C76,58 90,34 110,38 C130,42 148,24 168,20 C188,16 205,26 220,18 L220,94 L0,94 Z" fill="url(#ge)"/>
+            <path d="M0,74 C20,70 34,54 55,56 C76,58 90,34 110,38 C130,42 148,24 168,20 C188,16 205,26 220,18" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+    <div class="panel soft soft-dark">
+      <div class="panel-tag">Dark — Night studio</div>
+      <div class="swatches">
+        <div class="swatch"><div class="swatch-chip" style="background:var(--bg)"></div><div class="swatch-name">canvas</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface)"></div><div class="swatch-name">card</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--surface-2)"></div><div class="swatch-name">inset</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--accent)"></div><div class="swatch-name">magenta</div></div>
+        <div class="swatch"><div class="swatch-chip" style="background:var(--success)"></div><div class="swatch-name">growth</div></div>
+      </div>
+      <div class="type-sample">
+        <div class="type-h1">This week</div>
+        <div class="type-body">Jun 29 → Jul 5 · compared to previous 7 days</div>
+        <div class="type-caption">AUTO-SYNCS DAILY AT 12PM IST</div>
+      </div>
+      <div class="row">
+        <div class="col card">
+          <div class="accent-hairline"></div>
+          <div class="stat-label">Followers gained</div>
+          <div class="stat-value">+248</div>
+          <div class="stat-delta up">▲ 12.4% vs last week</div>
+          <div class="stat-hint">12,480 total</div>
+        </div>
+        <div class="col card">
+          <div class="chart-title">Daily views · 30 days</div>
+          <svg width="100%" height="94" viewBox="0 0 220 94" preserveAspectRatio="none">
+            <defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e05fa8" stop-opacity="0.22"/><stop offset="100%" stop-color="#e05fa8" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path d="M0,74 C20,70 34,54 55,56 C76,58 90,34 110,38 C130,42 148,24 168,20 C188,16 205,26 220,18 L220,94 L0,94 Z" fill="url(#gf)"/>
+            <path d="M0,74 C20,70 34,54 55,56 C76,58 90,34 110,38 C130,42 148,24 168,20 C188,16 205,26 220,18" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary">Sync now</button>
+        <button class="btn btn-secondary">View analytics</button>
+      </div>
+      <div class="navrow">
+        <span class="navitem active"><span class="dot"></span>Dashboard</span>
+        <span class="navitem">Analytics</span>
+        <span class="navitem">Ideas</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
