@@ -55,11 +55,8 @@ export function Nav() {
           );
         })}
       </nav>
-      <div className="mt-auto flex flex-col gap-3 px-3">
+      <div className="mt-auto px-3">
         <ThemeToggle />
-        <p className="font-mono text-[10px] uppercase tracking-wider text-muted-2">
-          Auto-syncs daily · 12pm IST
-        </p>
       </div>
     </aside>
   );
