@@ -1,16 +1,40 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { Fragment_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav, MobileNav } from "@/components/nav";
 import { ThemeProvider } from "@/components/theme";
 import { Toaster } from "@/components/toaster";
 
-const jakartaSans = Plus_Jakarta_Sans({
+const satoshi = localFont({
+  src: [
+    {
+      path: "./fonts/Satoshi-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Satoshi-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Satoshi-Bold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Satoshi-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-sans-face",
-  subsets: ["latin"],
+  display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const fragmentMono = Fragment_Mono({
+  weight: "400",
   variable: "--font-mono-face",
   subsets: ["latin"],
 });
@@ -30,7 +54,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${jakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${satoshi.variable} ${fragmentMono.variable} h-full antialiased`}
     >
       <body className="min-h-full md:h-dvh md:overflow-hidden">
         <ThemeProvider>
