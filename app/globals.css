@@ -36,14 +36,19 @@
   --chart-2: #2563eb;
   --chart-3: #d97706;
   --chart-4: #0d9488;
-  /* controls */
-  --control-bg: #f0f0f0;
+  /* controls — white fields with soft border (filter-style) */
+  --control-bg: #ffffff;
   --focus-ring: rgba(234, 88, 12, 0.35);
   /* elevation — active nav chip */
   --shadow-elevated:
     0 0 0 1px rgba(0, 0, 0, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.06);
+  /* popovers / date picker */
+  --shadow-popover:
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 16px 40px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
@@ -68,11 +73,15 @@
   --chart-2: #60a5fa;
   --chart-3: #fbbf24;
   --chart-4: #2dd4bf;
-  --control-bg: #101010;
+  --control-bg: #1a1a1a;
   --focus-ring: rgba(251, 146, 60, 0.4);
   --shadow-elevated:
     0 0 0 1px rgba(255, 255, 255, 0.08),
     0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-popover:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 24px 48px rgba(0, 0, 0, 0.35);
 }
 
 @theme inline {

@@ -67,8 +67,9 @@ export function Button({
    ---------------------------------------------------------------- */
 
 const controlBase =
-  "w-full rounded-ctl border border-border bg-control px-2.5 py-2 text-[13px] text-foreground " +
+  "w-full rounded-ctl border border-border bg-control px-2.5 py-2 text-[13px] font-medium text-foreground " +
   "placeholder:text-muted-2 transition-[border-color,box-shadow] duration-150 " +
+  "hover:border-border-strong " +
   "focus-visible:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -227,14 +228,14 @@ export function StatCard({
   const positive = (delta ?? 0) >= 0;
   return (
     <div className="rounded-card border border-border bg-surface p-4">
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.07em] text-muted">
+      <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
         {label}
       </p>
       <div className="mt-2 flex items-baseline justify-between gap-2">
         <span
           className={cn(
-            "font-mono font-medium tabular-nums tracking-tight text-foreground",
-            accent ? "text-[28px]" : "text-xl",
+            "font-bold tabular-nums tracking-tight text-foreground",
+            accent ? "text-[28px] leading-none" : "text-xl leading-none",
           )}
         >
           {value}
@@ -242,7 +243,7 @@ export function StatCard({
         {showDelta && (
           <span
             className={cn(
-              "flex items-center gap-0.5 font-mono text-[11px] font-medium tabular-nums",
+              "flex items-center gap-0.5 text-[12px] font-semibold tabular-nums",
               positive ? "text-success" : "text-danger",
             )}
           >
@@ -311,14 +312,14 @@ export function StatCell({
         className,
       )}
     >
-      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.07em] text-muted">
+      <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
         {label}
       </p>
       <div className={cn("flex items-baseline gap-2", hero ? "mt-4" : "mt-1.5")}>
         <span
           className={cn(
-            "font-mono font-medium tabular-nums tracking-tight text-foreground",
-            hero ? "text-[34px] leading-none" : "text-xl",
+            "font-bold tabular-nums tracking-tight text-foreground",
+            hero ? "text-[34px] leading-none" : "text-xl leading-none",
           )}
         >
           {value}
@@ -326,7 +327,7 @@ export function StatCell({
         {showDelta && (
           <span
             className={cn(
-              "flex items-center gap-0.5 font-mono text-[11px] font-medium tabular-nums",
+              "flex items-center gap-0.5 text-[12px] font-semibold tabular-nums",
               positive ? "text-success" : "text-danger",
             )}
           >

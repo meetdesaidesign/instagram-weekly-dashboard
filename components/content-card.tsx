@@ -57,7 +57,7 @@ export function ContentCard({
         <p className="text-xs text-muted line-clamp-2 min-h-[2rem]">
           {short || "(no caption)"}
         </p>
-        <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[11px] tabular-nums text-muted">
+        <div className="mt-auto grid grid-cols-2 gap-x-3 gap-y-1 text-[12px] font-medium tabular-nums text-muted">
           <Stat icon={<Eye size={12} />} value={item.views} />
           <Stat icon={<Heart size={12} />} value={item.likes} />
           <Stat icon={<MessageCircle size={12} />} value={item.comments} />
