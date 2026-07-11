@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme";
+import { useSidebarCollapsed } from "@/components/sidebar";
 
 const links = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
@@ -20,16 +21,33 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
+  const { collapsed } = useSidebarCollapsed();
+
   return (
-    <aside className="hidden shrink-0 px-3 py-5 md:flex md:w-60 md:flex-col">
+    <aside
+      className={cn(
+        "hidden shrink-0 overflow-hidden py-5 md:flex md:flex-col",
+        "transition-[width,padding] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]",
+        collapsed ? "md:w-16 md:px-2" : "md:w-60 md:px-3",
+      )}
+    >
       <Link
         href="/"
-        className="mb-8 flex items-center gap-2.5 rounded-ctl px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        title="Weekly Insights"
+        className={cn(
+          "mb-8 flex items-center rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+          collapsed ? "justify-center" : "gap-2.5 px-3",
+        )}
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-ctl bg-accent font-mono text-[11px] font-semibold text-on-accent">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-ctl bg-accent font-mono text-[11px] font-semibold text-on-accent">
           IG
         </span>
-        <span className="text-sm font-semibold tracking-tight text-foreground">
+        <span
+          className={cn(
+            "whitespace-nowrap text-sm font-semibold tracking-tight text-foreground",
+            collapsed && "sr-only",
+          )}
+        >
           Weekly Insights
         </span>
       </Link>
@@ -41,22 +59,29 @@ export function Nav() {
             <Link
               key={href}
               href={href}
+              title={label}
               className={cn(
-                "flex items-center gap-3 rounded-ctl px-3 py-2 text-[13px] transition-[background-color,color,box-shadow] duration-150",
+                "flex items-center rounded-ctl text-[13px] transition-[background-color,color,box-shadow] duration-150",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+                collapsed ? "justify-center py-2.5" : "gap-3 px-3 py-2",
                 active
                   ? "bg-surface font-bold text-foreground shadow-[var(--shadow-elevated)]"
                   : "font-medium text-muted hover:bg-surface/70 hover:text-foreground",
               )}
             >
-              <Icon size={16} className={cn(active && "text-accent")} />
-              {label}
+              <Icon
+                size={16}
+                className={cn("shrink-0", active && "text-accent")}
+              />
+              <span className={cn("whitespace-nowrap", collapsed && "sr-only")}>
+                {label}
+              </span>
             </Link>
           );
         })}
       </nav>
-      <div className="mt-auto px-3">
-        <ThemeToggle />
+      <div className={cn("mt-auto", !collapsed && "px-3")}>
+        <ThemeToggle compact={collapsed} />
       </div>
     </aside>
   );
