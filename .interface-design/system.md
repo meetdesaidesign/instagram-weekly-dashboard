@@ -78,7 +78,7 @@ Do **not** tint page backgrounds, cards, body text, or borders with brand color.
 
 ## Typography
 
-- UI text: **Plus Jakarta Sans**. Numerals, stat labels, deltas, timestamps, code-ish metadata: **JetBrains Mono**.
+- UI text: **Satoshi**. Numerals, stat labels, deltas, timestamps, code-ish metadata: **Fragment Mono**.
 - Hero stat values: mono 28px/500, `tabular-nums`, letter-spacing -0.02em.
 - Secondary stat values: mono 20px/500.
 - Stat labels: mono 10px/500 uppercase, tracking 0.07em, muted.
