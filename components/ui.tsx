@@ -13,6 +13,7 @@ import type {
   ReactNode,
   TextareaHTMLAttributes,
 } from "react";
+import { SidebarToggle } from "@/components/sidebar";
 
 /* ----------------------------------------------------------------
    Buttons — one source of truth for anything clickable.
@@ -167,11 +168,16 @@ export function PageHeader({
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
-          {title}
-        </h1>
-        {subtitle && <p className="mt-1 text-[13px] text-muted">{subtitle}</p>}
+      <div className="flex min-w-0 items-start gap-2">
+        <SidebarToggle className="mt-0.5 -ml-1.5" />
+        <div className="min-w-0">
+          <h1 className="text-[22px] font-semibold tracking-tight text-foreground">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="mt-1 text-[13px] text-muted">{subtitle}</p>
+          )}
+        </div>
       </div>
       {action}
     </div>

@@ -28,10 +28,42 @@ const options = [
   { value: "dark", label: "Dark", icon: Moon },
 ] as const;
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useHydrated();
-  const current = mounted ? (theme === "dark" || theme === "light" ? theme : resolvedTheme) : "light";
+  const current = mounted
+    ? theme === "dark" || theme === "light"
+      ? theme
+      : resolvedTheme
+    : "light";
+
+  if (compact) {
+    const next = current === "dark" ? "light" : "dark";
+    const Icon = current === "dark" ? Moon : Sun;
+    return (
+      <button
+        type="button"
+        title={`Switch to ${next}`}
+        aria-label={`Switch to ${next} theme`}
+        onClick={() => setTheme(next)}
+        className={cn(
+          "flex h-9 w-full cursor-pointer items-center justify-center rounded-ctl text-muted",
+          "transition-[background-color,color,transform] duration-150",
+          "hover:bg-surface/70 hover:text-foreground active:scale-[0.97]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
+          className,
+        )}
+      >
+        <Icon size={16} strokeWidth={1.75} />
+      </button>
+    );
+  }
 
   return (
     <div
