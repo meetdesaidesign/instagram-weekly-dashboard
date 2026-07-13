@@ -15,6 +15,33 @@ function useHydrated() {
   );
 }
 
+const THEME_TRANSITION_MS = 400;
+
+/** Briefly enable color transitions so the light ↔ dark swap is visible. */
+function withThemeTransition(apply: () => void) {
+  if (typeof document === "undefined") {
+    apply();
+    return;
+  }
+
+  const root = document.documentElement;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (reduceMotion) {
+    apply();
+    return;
+  }
+
+  root.classList.add("theme-transition");
+  apply();
+
+  window.setTimeout(() => {
+    root.classList.remove("theme-transition");
+  }, THEME_TRANSITION_MS);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <NextThemesProvider attribute="class" defaultTheme="light" enableSystem={false}>
@@ -43,24 +70,52 @@ export function ThemeToggle({
       : resolvedTheme
     : "light";
 
+  const selectTheme = (value: "light" | "dark") => {
+    if (value === current) return;
+    withThemeTransition(() => setTheme(value));
+  };
+
   if (compact) {
     const next = current === "dark" ? "light" : "dark";
-    const Icon = current === "dark" ? Moon : Sun;
+    const isDark = current === "dark";
     return (
       <button
         type="button"
         title={`Switch to ${next}`}
         aria-label={`Switch to ${next} theme`}
-        onClick={() => setTheme(next)}
+        onClick={() => selectTheme(next)}
         className={cn(
-          "flex h-9 w-full cursor-pointer items-center justify-center rounded-ctl text-muted",
+          "relative flex h-9 w-full cursor-pointer items-center justify-center rounded-ctl text-muted",
           "transition-[background-color,color,transform] duration-150",
           "hover:bg-surface/70 hover:text-foreground active:scale-[0.97]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",
           className,
         )}
       >
-        <Icon size={16} strokeWidth={1.75} />
+        <span className="relative size-4">
+          <Sun
+            size={16}
+            strokeWidth={1.75}
+            className={cn(
+              "absolute inset-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+              isDark
+                ? "scale-50 rotate-90 opacity-0"
+                : "scale-100 rotate-0 opacity-100",
+            )}
+            aria-hidden
+          />
+          <Moon
+            size={16}
+            strokeWidth={1.75}
+            className={cn(
+              "absolute inset-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+              isDark
+                ? "scale-100 rotate-0 opacity-100"
+                : "scale-50 -rotate-90 opacity-0",
+            )}
+            aria-hidden
+          />
+        </span>
       </button>
     );
   }
@@ -70,10 +125,20 @@ export function ThemeToggle({
       role="radiogroup"
       aria-label="Color theme"
       className={cn(
-        "inline-flex w-full items-center rounded-full bg-surface-3 p-1",
+        "relative inline-flex w-full items-center rounded-full bg-surface-3 p-1",
         className,
       )}
     >
+      {/* Sliding pill — moves between Light / Dark */}
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full",
+          "bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.06)]",
+          "transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          current === "dark" ? "translate-x-full" : "translate-x-0",
+        )}
+      />
       {options.map(({ value, label, icon: Icon }) => {
         const active = current === value;
         return (
@@ -82,15 +147,21 @@ export function ThemeToggle({
             role="radio"
             aria-checked={active}
             title={label}
-            onClick={() => setTheme(value)}
+            onClick={() => selectTheme(value)}
             className={cn(
-              "flex h-7 flex-1 cursor-pointer items-center justify-center rounded-full transition-[background-color,color,box-shadow] duration-150",
-              active
-                ? "bg-surface text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-                : "text-muted hover:text-foreground",
+              "relative z-10 flex h-7 flex-1 cursor-pointer items-center justify-center rounded-full",
+              "transition-colors duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+              active ? "text-foreground" : "text-muted hover:text-foreground",
             )}
           >
-            <Icon size={14} strokeWidth={1.75} />
+            <Icon
+              size={14}
+              strokeWidth={1.75}
+              className={cn(
+                "transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
+                active ? "scale-100" : "scale-90",
+              )}
+            />
             <span className="sr-only">{label}</span>
           </button>
         );
