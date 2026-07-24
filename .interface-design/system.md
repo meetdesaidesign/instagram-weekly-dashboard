@@ -2,15 +2,15 @@
 
 ## Direction and feel
 
-A precise instrument panel for Instagram growth. The user is a creator checking
-their account's vitals: focused, data-forward. Surfaces stay neutral; color is
-scarce and only used where it carries meaning (action, status, series).
+A weekly pulse report for an Instagram creator. Open it, read one sentence,
+know the week. Typography carries the hero — not a card grid. Surfaces stay
+neutral; color is scarce and only used where it carries meaning.
 
-- **Neutral canvas.** Grey/white surfaces and text hierarchy do the structural work.
-- **Color where required.** Warm orange accent for primary actions and brand marks;
-  green/red for deltas and status; a small chart palette for series.
-- Depth strategy: **borders only** for cards and panels. Active nav uses a soft
-  elevated shadow on a white (`surface`) chip so the current page reads clearly.
+- **Paper canvas.** Soft warm-grey page; content floats without a boxed panel shell.
+- **One-page scroll.** Slim top nav replaces the old sidebar. Week is the home.
+- **Color where required.** Warm orange accent for brand/actions; green/red for
+  deltas; small chip accents (heart / eye / follow) inside the hero sentence.
+- Depth strategy: **borders only** for cards below the fold. Hero has no cards.
 
 ## Tokens
 
@@ -18,102 +18,81 @@ Light (default):
 
 | Token         | Value                          | Role                              |
 |---------------|--------------------------------|-----------------------------------|
-| background    | `#f2f2f2`                      | canvas / sidebar                  |
-| surface       | `#ffffff`                      | main panel + cards                |
+| background    | `#f4f3f1`                      | paper canvas                      |
+| surface       | `#ffffff`                      | cards + active nav chips          |
 | surface-2     | `#f4f4f4`                      | insets, inputs, hover fills       |
-| surface-3     | `#ebebeb`                      | deeper insets / active nav        |
+| surface-3     | `#ebebeb`                      | deeper insets                     |
 | border        | `rgba(0,0,0,0.10)`             | hairlines                         |
 | border-strong | `rgba(0,0,0,0.22)`             | emphasis / hover borders          |
-| foreground    | `#111111`                      | primary text                      |
+| foreground    | `#111111`                      | primary text / hero ink           |
 | muted         | `#555555`                      | secondary text                    |
 | muted-2       | `#999999`                      | tertiary/metadata text            |
 | accent        | `#ea580c`                      | orange — primary actions, brand   |
 | accent-soft   | `rgba(234,88,12,0.10)`         | soft accent fills                 |
 | on-accent     | `#ffffff`                      | text on accent                    |
-| success       | `#16a34a`                      | positive deltas, success state    |
-| danger        | `#dc2626`                      | negative deltas, errors           |
+| success       | `#16a34a`                      | positive deltas                   |
+| danger        | `#dc2626`                      | negative deltas; likes chip       |
 | warning       | `#d97706`                      | warnings                          |
 | chart-1..4    | orange / blue / amber / teal   | series                            |
 
-Dark (`.dark`):
+Dark (`.dark`): same structure as before (`#0a0a0a` canvas, `#141414` surface,
+accent `#fb923c`).
 
-| Token         | Value                          |
-|---------------|--------------------------------|
-| background    | `#0a0a0a`                      |
-| surface       | `#141414`                      |
-| surface-2     | `#1c1c1c`                      |
-| surface-3     | `#242424`                      |
-| border        | `rgba(255,255,255,0.11)`       |
-| border-strong | `rgba(255,255,255,0.24)`       |
-| foreground    | `#f0f0f0`                      |
-| muted         | `#a3a3a3`                      |
-| muted-2       | `#6b6b6b`                      |
-| accent        | `#fb923c`                      |
-| accent-soft   | `rgba(251,146,60,0.14)`        |
-| on-accent     | `#0a0a0a`                      |
-| success       | `#4ade80`                      |
-| danger        | `#f87171`                      |
-| warning       | `#fbbf24`                      |
-| chart-1..4    | orange / blue / amber / teal   |
-
-Theme switching: `next-themes`, `attribute="class"`, system default, manual override.
+Theme switching: `next-themes`, `attribute="class"`, light default, manual override.
 
 ## Color usage (restraint)
 
 Use chromatic color only for:
 
-1. **Accent** — primary buttons, logo mark, active nav icon, week strip, focus ring, selected chips.
-2. **Success / danger** — deltas, banners, config status, toast icons.
-3. **Charts** — series strokes/fills via `--chart-1..4`.
+1. **Accent** — primary buttons, logo mark, active nav icon, week strip, focus ring.
+2. **Success / danger** — deltas, banners, toast icons; likes chip uses danger.
+3. **Charts** — series via `--chart-1..4`; views chip uses chart-2.
 
-Do **not** tint page backgrounds, cards, body text, or borders with brand color.
-
-- **Deltas**: positive = `text-success`, negative = `text-danger`; always also show
-  arrow icon and `+`/`−` sign (hue is not the only cue).
-- **Banners**: soft tinted fill + matching icon color.
-- **Status badges**: filled accent chip = active/connected; outline + muted = inactive.
-- **Multi-series charts**: color primary; `strokeDasharray` secondary
-  (solid, `5 3`, `2 2`, `7 3 2 3` — see `chartDashes`).
-- **Toasts**: success/danger/warning icons use semantic tokens.
+Do **not** tint page backgrounds, hero text, or card shells with brand color.
 
 ## Typography
 
-- UI text: **Satoshi**. Numerals, stat labels, deltas, timestamps, code-ish metadata: **Fragment Mono**.
-- Hero stat values: mono 28px/500, `tabular-nums`, letter-spacing -0.02em.
-- Secondary stat values: mono 20px/500.
-- Stat labels: mono 10px/500 uppercase, tracking 0.07em, muted.
-- Page titles: sans 22px/600, tracking -0.02em.
+- UI text: **Satoshi**. Numerals in hero + meta: **Fragment Mono** / tabular-nums.
+- **Hero sentence:** Satoshi bold, `clamp(2.25rem, 7vw, 4.25rem)`, leading 1.08,
+  tracking -0.035em. Metric figures inherit weight; supporting clause uses muted.
+- Inline **MetricChip**: ~1.15em tall mini surface beside each figure (studio-site
+  signature adapted to Instagram metrics).
+- Page titles (secondary routes): sans 22px/600, tracking -0.02em.
 - Section titles: sans 14px/600.
-- Body: sans 13px, muted. Captions/meta: 11px muted-2.
-- Text hierarchy = 4 levels: foreground / muted / muted-2 / disabled (muted-2 at 60%).
+- Body: sans 13–15px muted. Captions/meta: mono 11px uppercase tracked.
+- Text hierarchy = 4 levels: foreground / muted / muted-2 / disabled.
 
 ## Spacing, radius, density
 
-- Base unit 4px. Card padding **16px** (tight, workbench density). Section gaps 24–32px.
-- Radius scale: **6px** controls, **8px** cards, 12px modals, **20px** main content panel. No pills except week-strip segments.
-- Shell: sidebar sits on the canvas; main content is a bordered `surface` panel with `rounded-panel` and a gutter from the nav (no divider line).
-- Grid gaps: 12px between stat cards, 16px between chart cards.
+- Base unit 4px. Hero: generous vertical air (pt 8 / pb 14–20). Below-fold cards
+  keep workbench density (16px pad, 24–32px section gaps).
+- Radius: **6px** controls, **8px** cards, **20px** unused panel radius retained.
+- Shell: sticky top nav on paper canvas; content `max-w-5xl` centered. No side
+  panel, no mobile bottom nav.
 
 ## Signature
 
-**Week strip** — a 7-segment horizontal strip (2px tall segments, 4px gaps, filled = days
-elapsed this week, accent color). Appears on: dashboard hero card, sync status,
-loading skeletons. Unique to this product's "week" mental model.
+1. **Typography hero** — one display sentence weaving followers gained, likes,
+   and reel views with inline MetricChips.
+2. **Week strip** — 7-segment Sat→Sat progress (filled = days elapsed).
+3. Mono uppercase week label + orange brand mark in the top bar.
 
-Other signatures: mono uppercase labels, hairline dividers, orange brand mark.
+## Week model
+
+- Window: Saturday → Saturday (IST). `lib/dates.ts` → `saturdayWeekContaining`.
+- In-progress weeks clamp data end to today.
+- Hero metrics: followers gained (account snaps), likes (all posts published in
+  range), reel views (sum of views on `productType === "REELS"`).
 
 ## Component patterns
 
+- `TopNav` — sticky, blurred paper bar; active link = surface chip + elevated shadow.
+- `WeekNav` — prev/next Saturday steps via `?week=YYYY-MM-DD`.
 - `Button primary` — 34px h · accent bg · on-accent text.
-- `Button secondary` — same metrics · surface-2 bg · border.
-- `Card` — surface bg · 1px border · 8px radius · 16px pad.
-- `Input` — control bg (darker than card = inset) · 1px border · 6px radius · focus = accent border + 2px ring.
-- Nav active item: white `surface` fill + soft elevated shadow + bold text + accent icon.
-- Chart grid: `--border` stroke dasharray 3 3, axes text mono 10px muted-2.
-- Tooltips/popovers: surface-2, border-strong, 8px radius.
+- `Button secondary` — surface-2 bg · border.
+- `Card` — surface · 1px border · 8px radius · 16px pad (below fold only).
 
 ## Motion
 
 - <300ms, transform/opacity only, ease-out `cubic-bezier(0.23,1,0.32,1)`.
-- Button press `scale(0.97)`. No entrance animation on high-frequency views; subtle
-  fade+4px rise on card grids (30ms stagger), respect `prefers-reduced-motion`.
+- Hero uses subtle `rise-in` stagger; respect `prefers-reduced-motion`.

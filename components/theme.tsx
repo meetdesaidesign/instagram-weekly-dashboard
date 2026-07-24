@@ -85,7 +85,7 @@ export function ThemeToggle({
         aria-label={`Switch to ${next} theme`}
         onClick={() => selectTheme(next)}
         className={cn(
-          "relative flex h-9 w-full cursor-pointer items-center justify-center rounded-ctl text-muted",
+          "relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-ctl text-muted",
           "transition-[background-color,color,transform] duration-150",
           "hover:bg-surface/70 hover:text-foreground active:scale-[0.97]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]",

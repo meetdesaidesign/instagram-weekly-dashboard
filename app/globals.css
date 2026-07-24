@@ -9,8 +9,8 @@
    ============================================================ */
 
 :root {
-  /* surfaces */
-  --background: #f2f2f2;
+  /* surfaces — paper canvas for the weekly report */
+  --background: #f4f3f1;
   --surface: #ffffff;
   --surface-2: #f4f4f4;
   --surface-3: #ebebeb;

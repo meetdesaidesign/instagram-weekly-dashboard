@@ -1,29 +1,9 @@
 import { cn } from "@/lib/utils";
-import { PageHeader, StatPanel, WeekStrip } from "@/components/ui";
+import { PageHeader, WeekStrip } from "@/components/ui";
 
 export function Skeleton({ className }: { className?: string }) {
   return (
     <div className={cn("animate-pulse rounded-ctl bg-surface-2", className)} />
-  );
-}
-
-function StatCellSkeleton({
-  hero,
-  className,
-}: {
-  hero?: boolean;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-col bg-surface", hero ? "p-5" : "p-4", className)}>
-      <Skeleton className="h-2.5 w-20" />
-      <Skeleton className={cn("mt-3", hero ? "h-9 w-32" : "h-6 w-16")} />
-      {hero && (
-        <div className="mt-auto pt-5">
-          <WeekStrip filled={0} />
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -58,30 +38,40 @@ function ContentGridSkeleton({ count = 4 }: { count?: number }) {
   );
 }
 
-/** Full dashboard/analytics shaped skeleton */
+/** Home week report skeleton — typography hero first. */
 export function MetricsPageSkeleton({
-  title,
+  title = "This week",
   contentCards = 4,
 }: {
-  title: string;
+  title?: string;
   contentCards?: number;
 }) {
   return (
     <>
-      <PageHeader title={title} subtitle="Loading…" />
-      <StatPanel className="grid-cols-2 lg:grid-cols-4">
-        <StatCellSkeleton hero className="col-span-2 row-span-2" />
-        {Array.from({ length: 7 }, (_, i) => (
-          <StatCellSkeleton key={i} />
-        ))}
-      </StatPanel>
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <section className="pb-14 pt-4 sm:pb-20 sm:pt-8">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-2">
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-2">
+              {title} · Sat → Sat
+            </p>
+            <WeekStrip filled={0} className="w-28" />
+          </div>
+          <Skeleton className="h-7 w-48" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-12 w-[min(100%,28rem)] sm:h-16" />
+          <Skeleton className="h-12 w-[min(100%,36rem)] sm:h-16" />
+          <Skeleton className="h-12 w-[min(90%,24rem)] sm:h-16" />
+        </div>
+        <Skeleton className="mt-8 h-4 w-64" />
+      </section>
+      <div className="space-y-6 border-t border-border pt-10">
         <ChartCardSkeleton />
         <ChartCardSkeleton />
-      </div>
-      <div className="mt-8">
-        <Skeleton className="mb-4 h-3.5 w-48" />
-        <ContentGridSkeleton count={contentCards} />
+        <div>
+          <Skeleton className="mb-4 h-3.5 w-48" />
+          <ContentGridSkeleton count={contentCards} />
+        </div>
       </div>
     </>
   );

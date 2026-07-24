@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Eye, Heart, UserPlus } from "lucide-react";
 import { isConnected } from "@/lib/settings";
 import {
   summarizeRange,
@@ -6,22 +7,28 @@ import {
   getTopContent,
   pctChange,
 } from "@/lib/analytics";
-import { todayInAppTz, addDaysKey, formatDateLabel } from "@/lib/dates";
 import {
-  PageHeader,
+  todayInAppTz,
+  addDaysKey,
+  formatDateLabel,
+  saturdayWeekContaining,
+  saturdayWeekFilled,
+  saturdayOnOrBefore,
+} from "@/lib/dates";
+import {
   Card,
   EmptyState,
   SectionTitle,
-  StatPanel,
-  StatCell,
+  WeekStrip,
   buttonClasses,
 } from "@/components/ui";
 import { MultiLineTrend } from "@/components/charts";
 import { chartColors, chartDashes } from "@/lib/chart-tokens";
 import { ContentCard } from "@/components/content-card";
 import { SyncButton } from "@/components/actions";
-import { RangePicker } from "@/components/range-picker";
-import { formatNumber, formatFullNumber, formatDelta } from "@/lib/utils";
+import { WeekNav } from "@/components/week-nav";
+import { formatNumber, formatDelta, formatPercent, cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -55,44 +62,67 @@ function Legend({
   );
 }
 
-function rangeTitle(dayCount: number, endIsToday: boolean): string {
-  if (endIsToday && [7, 14, 30, 90].includes(dayCount)) {
-    return `Last ${dayCount} days`;
-  }
-  return "Custom range";
+function MetricChip({
+  icon: Icon,
+  tone,
+}: {
+  icon: typeof Heart;
+  tone: "followers" | "likes" | "views";
+}) {
+  return (
+    <span
+      className={cn(
+        "relative mx-1.5 inline-flex h-[1.15em] w-[1.55em] shrink-0 items-center justify-center align-[-0.2em]",
+        "rounded-[0.28em] border border-border bg-surface shadow-[var(--shadow-elevated)]",
+      )}
+      aria-hidden
+    >
+      <Icon
+        className={cn(
+          "h-[0.55em] w-[0.55em]",
+          tone === "followers" && "text-accent",
+          tone === "likes" && "text-danger",
+          tone === "views" && "text-chart-2",
+        )}
+        strokeWidth={2.25}
+      />
+    </span>
+  );
 }
 
-function inclusiveDayCount(start: string, end: string): number {
+function HeroStat({ children }: { children: ReactNode }) {
   return (
-    Math.round(
-      (Date.parse(end + "T00:00:00Z") - Date.parse(start + "T00:00:00Z")) /
-        86_400_000,
-    ) + 1
+    <span className="font-semibold tabular-nums tracking-[-0.03em] text-foreground">
+      {children}
+    </span>
   );
 }
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ start?: string; end?: string }>;
+  searchParams: Promise<{ week?: string }>;
 }) {
   const connected = await isConnected();
   const params = await searchParams;
   const today = todayInAppTz();
-  const end = params.end && params.end <= today ? params.end : today;
-  const start =
-    params.start && params.start <= end ? params.start : addDaysKey(end, -6);
+
+  const requested =
+    params.week && /^\d{4}-\d{2}-\d{2}$/.test(params.week)
+      ? saturdayOnOrBefore(params.week)
+      : undefined;
+  const { start: weekStart, end: weekEnd } = saturdayWeekContaining(requested);
+  // In-progress weeks only have data through today.
+  const dataEnd = weekEnd > today ? today : weekEnd;
+  const filled = saturdayWeekFilled(weekStart, today);
+  const isCurrent = weekStart === saturdayOnOrBefore(today);
 
   if (!connected) {
     return (
-      <>
-        <PageHeader
-          title="Dashboard"
-          subtitle="Weekly performance of your Instagram account"
-        />
+      <div className="mx-auto max-w-2xl pt-10">
         <EmptyState
           title="Connect your Instagram account"
-          description="Link your Instagram Business or Creator account to start tracking weekly followers, views, and top content. Data syncs automatically every day at 12pm IST."
+          description="Link your Instagram Business or Creator account to start tracking weekly followers, likes, and reel views. Data syncs automatically every day at 12pm IST."
           action={
             <Link
               href="/settings"
@@ -102,144 +132,131 @@ export default async function DashboardPage({
             </Link>
           }
         />
-      </>
+      </div>
     );
   }
 
-  const dayCount = inclusiveDayCount(start, end);
-  const prevEnd = addDaysKey(start, -1);
-  const prevStart = addDaysKey(prevEnd, -(dayCount - 1));
+  const prevStart = addDaysKey(weekStart, -7);
+  const prevEnd = weekStart;
 
   const [current, previous, trend, topContent] = await Promise.all([
-    summarizeRange(start, end),
+    summarizeRange(weekStart, dataEnd),
     summarizeRange(prevStart, prevEnd),
-    getTrend(start, end),
-    getTopContent(start, end, 12),
+    getTrend(weekStart, dataEnd),
+    getTopContent(weekStart, dataEnd, 8),
   ]);
 
-  const trendSeries = [
-    { key: "views", name: "Views", color: chartColors[1], dash: chartDashes[1] },
-    { key: "reach", name: "Reach", color: chartColors[2], dash: chartDashes[2] },
-    {
-      key: "profileViews",
-      name: "Profile views",
-      color: chartColors[3],
-      dash: chartDashes[3],
-    },
-  ];
   const followerSeries = [
     { key: "followers", name: "Followers", color: chartColors[1] },
   ];
+  const trendSeries = [
+    { key: "views", name: "Views", color: chartColors[1], dash: chartDashes[1] },
+    { key: "reach", name: "Reach", color: chartColors[2], dash: chartDashes[2] },
+  ];
+
+  const weekLabel = `${formatDateLabel(weekStart)} → ${formatDateLabel(weekEnd)}`;
+  const gained = current.followersGained;
+  const gainedLabel = formatDelta(gained);
 
   return (
     <>
-      <PageHeader
-        title={rangeTitle(dayCount, end === today)}
-        subtitle={`${formatDateLabel(start)} → ${formatDateLabel(end)} · compared to previous ${dayCount} days`}
-        action={
+      {/* Hero */}
+      <section className="relative pb-14 pt-4 sm:pb-20 sm:pt-8">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-2">
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-2">
+              {isCurrent ? "This week" : "Week of"} · Sat → Sat
+            </p>
+            <WeekStrip filled={filled} className="w-28" />
+          </div>
           <div className="flex flex-wrap items-center gap-2">
-            <RangePicker start={start} end={end} today={today} />
+            <WeekNav start={weekStart} label={weekLabel} today={today} />
             <SyncButton />
           </div>
-        }
-      />
+        </div>
 
-      {!current.hasData ? (
-        <EmptyState
-          title="No data in this range"
-          description="We only have data from the days the sync has run. Pick a more recent range, or run a sync now."
-          action={<SyncButton />}
-        />
-      ) : (
-        <>
-          <StatPanel className="grid-cols-1 sm:grid-cols-2">
-            <StatCell
-              hero
-              label="Followers"
-              value={formatFullNumber(current.followersEnd)}
-              delta={pctChange(
-                current.followersGained,
-                previous.followersGained,
-              )}
-              hint={`${formatDelta(current.followersGained)} gained in range`}
-            />
-            <StatCell
-              hero
-              label="Views"
-              value={formatNumber(current.views)}
-              delta={pctChange(current.views, previous.views)}
-              hint={`vs previous ${dayCount} days`}
-            />
-          </StatPanel>
+        {!current.hasData ? (
+          <EmptyState
+            title="No data in this week yet"
+            description="We only have data from the days the sync has run. Come back after the next sync, or run one now."
+            action={<SyncButton />}
+          />
+        ) : (
+          <h1
+            className={cn(
+              "max-w-4xl text-[clamp(2.25rem,6.5vw,4.5rem)] font-bold leading-[1.08] tracking-[-0.035em] text-foreground",
+              "text-balance rise-in",
+            )}
+          >
+            You gained{" "}
+            <HeroStat>
+              {gainedLabel}
+            </HeroStat>
+            <MetricChip icon={UserPlus} tone="followers" />
+            followers —{" "}
+            <HeroStat>{formatNumber(current.likes)}</HeroStat>
+            <MetricChip icon={Heart} tone="likes" />
+            likes and{" "}
+            <HeroStat>{formatNumber(current.reelViews)}</HeroStat>
+            <MetricChip icon={Eye} tone="views" />
+            reel views
+            <span className="text-muted"> on what you posted.</span>
+          </h1>
+        )}
 
-          <SectionTitle className="mt-8 mb-3">Engagement</SectionTitle>
-          <StatPanel className="grid-cols-2 lg:grid-cols-4">
-            <StatCell
-              label="Reach"
-              value={formatNumber(current.reach)}
-              delta={pctChange(current.reach, previous.reach)}
-            />
-            <StatCell
-              label="Profile views"
-              value={formatNumber(current.profileViews)}
-              delta={pctChange(current.profileViews, previous.profileViews)}
-            />
-            <StatCell
-              label="Likes"
-              value={formatNumber(current.likes)}
-              delta={pctChange(current.likes, previous.likes)}
-              hint="on posts published in range"
-            />
-            <StatCell
-              label="Comments"
-              value={formatNumber(current.comments)}
-              delta={pctChange(current.comments, previous.comments)}
-            />
-            <StatCell
-              label="Shares"
-              value={formatNumber(current.shares)}
-              delta={pctChange(current.shares, previous.shares)}
-            />
-            <StatCell
-              label="Saves"
-              value={formatNumber(current.saved)}
-              delta={pctChange(current.saved, previous.saved)}
-            />
-            <StatCell
-              label="Posts published"
-              value={formatNumber(current.postsPublished)}
-              delta={pctChange(
-                current.postsPublished,
-                previous.postsPublished,
-              )}
-              className="col-span-2"
-            />
-          </StatPanel>
+        {current.hasData && (
+          <p
+            className="mt-8 max-w-md text-[15px] leading-relaxed text-muted rise-in"
+            style={{ ["--stagger-i" as string]: 1 }}
+          >
+            {current.reelsPublished === 0
+              ? "No reels published this week yet."
+              : `${current.reelsPublished} reel${current.reelsPublished === 1 ? "" : "s"} · ${current.postsPublished} total post${current.postsPublished === 1 ? "" : "s"}`}
+            {previous.hasData && gained !== previous.followersGained ? (
+              <>
+                {" · "}
+                <span
+                  className={
+                    gained >= previous.followersGained
+                      ? "text-success"
+                      : "text-danger"
+                  }
+                >
+                  {formatPercent(pctChange(gained, previous.followersGained))} vs
+                  last week
+                </span>
+              </>
+            ) : null}
+          </p>
+        )}
+      </section>
 
-          <Card className="mt-6">
-            <SectionTitle meta={<Legend items={trendSeries} />}>
-              Trends
-            </SectionTitle>
-            <MultiLineTrend data={trend} series={trendSeries} />
-          </Card>
-
-          <Card className="mt-4">
+      {current.hasData && (
+        <div className="space-y-6 border-t border-border pt-10">
+          <Card>
             <SectionTitle meta={<Legend items={followerSeries} />}>
               Follower growth
             </SectionTitle>
             <MultiLineTrend data={trend} series={followerSeries} />
           </Card>
 
-          <div className="mt-8">
+          <Card>
+            <SectionTitle meta={<Legend items={trendSeries} />}>
+              Reach & views
+            </SectionTitle>
+            <MultiLineTrend data={trend} series={trendSeries} />
+          </Card>
+
+          <div>
             <SectionTitle
-              meta={`${current.postsPublished} posts in range`}
+              meta={`${current.postsPublished} posts`}
               className="mb-4"
             >
               Top content
             </SectionTitle>
             {topContent.length === 0 ? (
               <p className="text-[13px] text-muted">
-                No posts published in this range.
+                No posts published this week.
               </p>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -249,7 +266,7 @@ export default async function DashboardPage({
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
     </>
   );

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { dateKeyToUtc } from "@/lib/dates";
+import { addDaysKey, dateKeyToUtc } from "@/lib/dates";
 
 export interface RangeSummary {
   startKey: string;
@@ -8,6 +8,8 @@ export interface RangeSummary {
   followersEnd: number;
   followersGained: number;
   views: number;
+  /** Views on REELS published in the range (latest snapshot per reel). */
+  reelViews: number;
   reach: number;
   profileViews: number;
   likes: number;
@@ -15,6 +17,7 @@ export interface RangeSummary {
   shares: number;
   saved: number;
   postsPublished: number;
+  reelsPublished: number;
   hasData: boolean;
 }
 
@@ -50,6 +53,8 @@ export async function summarizeRange(
   endKey: string,
 ): Promise<RangeSummary> {
   const start = dateKeyToUtc(startKey);
+  // Inclusive end-of-day: timestamps are full datetimes, so use next midnight.
+  const endExclusive = dateKeyToUtc(addDaysKey(endKey, 1));
   const end = dateKeyToUtc(endKey);
 
   const accountSnaps = await prisma.accountSnapshot.findMany({
@@ -66,7 +71,7 @@ export async function summarizeRange(
 
   // Content published within the range, using each post's latest snapshot.
   const media = await prisma.media.findMany({
-    where: { timestamp: { gte: start, lte: end } },
+    where: { timestamp: { gte: start, lt: endExclusive } },
     include: { snapshots: { orderBy: { date: "desc" }, take: 1 } },
   });
 
@@ -74,13 +79,17 @@ export async function summarizeRange(
   let comments = 0;
   let shares = 0;
   let saved = 0;
+  let reelViews = 0;
+  let reelsPublished = 0;
   for (const m of media) {
+    if (m.productType === "REELS") reelsPublished += 1;
     const snap = m.snapshots[0];
     if (!snap) continue;
     likes += snap.likes;
     comments += snap.comments;
     shares += snap.shares;
     saved += snap.saved;
+    if (m.productType === "REELS") reelViews += snap.views;
   }
 
   return {
@@ -90,6 +99,7 @@ export async function summarizeRange(
     followersEnd,
     followersGained: followersEnd - followersStart,
     views,
+    reelViews,
     reach,
     profileViews,
     likes,
@@ -97,6 +107,7 @@ export async function summarizeRange(
     shares,
     saved,
     postsPublished: media.length,
+    reelsPublished,
     hasData: accountSnaps.length > 0 || media.length > 0,
   };
 }
@@ -128,9 +139,9 @@ export async function getTopContent(
   limit = 6,
 ): Promise<TopContentItem[]> {
   const start = dateKeyToUtc(startKey);
-  const end = dateKeyToUtc(endKey);
+  const endExclusive = dateKeyToUtc(addDaysKey(endKey, 1));
   const media = await prisma.media.findMany({
-    where: { timestamp: { gte: start, lte: end } },
+    where: { timestamp: { gte: start, lt: endExclusive } },
     include: { snapshots: { orderBy: { date: "desc" }, take: 1 } },
   });
 

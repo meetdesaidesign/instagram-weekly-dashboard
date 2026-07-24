@@ -76,3 +76,40 @@ export function formatDateLabel(key: string): string {
     timeZone: "UTC",
   });
 }
+
+/** Most recent Saturday on or before `key` (YYYY-MM-DD), in calendar-day terms. */
+export function saturdayOnOrBefore(key: string): string {
+  const d = dateKeyToUtc(key);
+  // UTC weekday: 0=Sun … 6=Sat. Days since last Saturday:
+  const sinceSat = (d.getUTCDay() + 1) % 7;
+  return addDaysKey(key, -sinceSat);
+}
+
+/**
+ * Saturday→Saturday week containing `anchor` (defaults to today IST).
+ * start = Saturday inclusive; end = next Saturday inclusive (7 days later).
+ * Data for an in-progress week should clamp the effective end to today.
+ */
+export function saturdayWeekContaining(anchorKey?: string): {
+  start: string;
+  end: string;
+} {
+  const today = todayInAppTz();
+  const anchor = anchorKey && anchorKey <= today ? anchorKey : today;
+  const start = saturdayOnOrBefore(anchor);
+  return { start, end: addDaysKey(start, 7) };
+}
+
+/** Days elapsed in a Sat→Sat week (1–7), clamped to today. */
+export function saturdayWeekFilled(start: string, today = todayInAppTz()): number {
+  if (today < start) return 0;
+  const end = addDaysKey(start, 7);
+  const effective = today < end ? today : end;
+  return (
+    Math.round(
+      (Date.parse(effective + "T00:00:00Z") -
+        Date.parse(start + "T00:00:00Z")) /
+        86_400_000,
+    ) + 1
+  );
+}
