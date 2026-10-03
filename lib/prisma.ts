@@ -55,8 +55,6 @@ function createClient() {
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-    // Cached thumbnail bytes are heavy; only the thumbnail route selects them explicitly.
-    omit: { media: { thumbData: true } },
   });
 }
 

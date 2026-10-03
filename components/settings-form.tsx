@@ -74,13 +74,3 @@ export function CaptionTemplateForm({
     </div>
   );
 }
-
-export function DisconnectButton() {
-  return (
-    <form action="/api/instagram/disconnect" method="post">
-      <Button type="submit" variant="danger">
-        Disconnect
-      </Button>
-    </form>
-  );
-}
