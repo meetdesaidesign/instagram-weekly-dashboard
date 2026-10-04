@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { generateCaption, getModelName } from "@/lib/openai";
+import { generateCaption } from "@/lib/openai";
 import {
   getSettings,
   DEFAULT_CAPTION_TEMPLATE,
   DEFAULT_CAPTION_EXAMPLES,
 } from "@/lib/settings";
-import { prisma } from "@/lib/prisma";
 import { isOpenAIConfigured } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
@@ -34,16 +33,7 @@ export async function POST(req: Request) {
 
     const output = await generateCaption(topic, template, examples);
 
-    const run = await prisma.captionRun.create({
-      data: {
-        topic,
-        output,
-        templateUsed: template,
-        model: getModelName(),
-      },
-    });
-
-    return NextResponse.json({ ok: true, output, id: run.id });
+    return NextResponse.json({ ok: true, output });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to generate caption";

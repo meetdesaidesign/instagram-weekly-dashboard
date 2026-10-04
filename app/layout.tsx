@@ -40,9 +40,9 @@ const fragmentMono = Fragment_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Instagram Weekly Insights",
+  title: "Caption writer",
   description:
-    "Weekly performance analytics, content ideas, and caption writing for your Instagram account.",
+    "Write a structured caption from a reel topic.",
 };
 
 export default function RootLayout({

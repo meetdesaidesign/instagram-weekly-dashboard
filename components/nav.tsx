@@ -2,19 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart3,
-  Lightbulb,
-  PenLine,
-  Settings,
-} from "lucide-react";
+import { PenLine, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme";
 
 const links = [
-  { href: "/", label: "Week", icon: BarChart3 },
-  { href: "/ideas", label: "Ideas", icon: Lightbulb },
-  { href: "/captions", label: "Captions", icon: PenLine },
+  { href: "/", label: "Write", icon: PenLine },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -29,10 +22,10 @@ export function TopNav() {
           className="flex shrink-0 items-center gap-2.5 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
         >
           <span className="flex h-7 w-7 items-center justify-center rounded-ctl bg-accent font-mono text-[11px] font-semibold text-on-accent">
-            IG
+            C
           </span>
           <span className="hidden text-sm font-semibold tracking-tight text-foreground sm:inline">
-            Weekly
+            Captions
           </span>
         </Link>
 

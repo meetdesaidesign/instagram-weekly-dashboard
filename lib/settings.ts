@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { refreshLongLivedToken } from "@/lib/instagram";
 
 export const DEFAULT_CAPTION_TEMPLATE = `You are writing an Instagram caption for a Gujarati reels page (topics: careers, jobs, students, and workers guidance). Follow this EXACT structure and order. Put ONE blank line between each of the 4 parts.
 
@@ -84,10 +83,6 @@ function fallbackSettings() {
   const now = new Date();
   return {
     id: 1,
-    igUserId: null as string | null,
-    igUsername: null as string | null,
-    accessToken: null as string | null,
-    tokenExpiresAt: null as Date | null,
     captionTemplate: DEFAULT_CAPTION_TEMPLATE,
     captionExamples: DEFAULT_CAPTION_EXAMPLES,
     updatedAt: now,
@@ -121,46 +116,4 @@ export async function updateSettings(data: {
     create: { id: 1, captionTemplate: DEFAULT_CAPTION_TEMPLATE, ...data },
     update: data,
   });
-}
-
-export async function isConnected(): Promise<boolean> {
-  try {
-    const s = await prisma.setting.findUnique({ where: { id: 1 } });
-    return Boolean(s?.accessToken && s?.igUserId);
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Returns a valid access token, refreshing it first if it expires within
- * `refreshWithinDays`. Throws if the account is not connected.
- */
-export async function getValidToken(
-  refreshWithinDays = 10,
-): Promise<{ token: string; userId: string }> {
-  const s = await getSettings();
-  if (!s.accessToken || !s.igUserId) {
-    throw new Error("Instagram account is not connected.");
-  }
-  const now = Date.now();
-  const expiresAt = s.tokenExpiresAt?.getTime() ?? 0;
-  const msLeft = expiresAt - now;
-  const shouldRefresh = msLeft < refreshWithinDays * 24 * 60 * 60 * 1000;
-
-  if (shouldRefresh) {
-    try {
-      const refreshed = await refreshLongLivedToken(s.accessToken);
-      const newExpiry = new Date(now + refreshed.expiresInSeconds * 1000);
-      await prisma.setting.update({
-        where: { id: 1 },
-        data: { accessToken: refreshed.accessToken, tokenExpiresAt: newExpiry },
-      });
-      return { token: refreshed.accessToken, userId: s.igUserId };
-    } catch {
-      // Refresh can fail if the token is < 24h old; fall back to current token.
-      return { token: s.accessToken, userId: s.igUserId };
-    }
-  }
-  return { token: s.accessToken, userId: s.igUserId };
 }

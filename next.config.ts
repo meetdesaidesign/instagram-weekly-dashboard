@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "*.cdninstagram.com" },
-      { protocol: "https", hostname: "*.fbcdn.net" },
-      { protocol: "https", hostname: "scontent.cdninstagram.com" },
-    ],
+  async redirects() {
+    return [
+      { source: "/captions", destination: "/", permanent: false },
+      { source: "/ideas", destination: "/", permanent: false },
+      { source: "/analytics", destination: "/", permanent: false },
+    ];
   },
 };
 
